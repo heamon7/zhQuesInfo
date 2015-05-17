@@ -11,14 +11,15 @@ from leancloud import Query
 from scrapy import log
 from scrapy.exceptions import DropItem
 
-class QesInfoPipeline(object):
+class QuesInfoPipeline(object):
     def __init__(self):
         leancloud.init('dh9dwra0dkin5zv2en2gj6jndplwnl5aqr15uv540mhzjpqp', master_key='bmblhzxwa4lww1beek9288m7tc4crio1fhahxohgsu31yai4')
         pass
-    def process_itemess_item(self, item, spider):
+    def process_item(self, item, spider):
          TestQuestionInfo = Object.extend('TestQuestionInfo')
          questionInfo = TestQuestionInfo()
          try:
+            print 'haha'
             questionInfo.set('idZnonceContent',item['idZnonceContent'])
             questionInfo.set('dataUrlToken',item['dataUrlToken'])
             questionInfo.set('isTopQuestion',item['isTopQuestion'])
@@ -35,11 +36,11 @@ class QesInfoPipeline(object):
             questionInfo.set('relatedQuestionLinkList',item['relatedQuestionLinkList'])
             questionInfo.set('quesCommentCount',item['quesCommentCount'])
             questionInfo.set('relatedQuestionLinkList',item['relatedQuestionLinkList'])
-            questionInfo.set('relatedQuestionLinkList',item['relatedQuestionLinkList'])
+   #         questionInfo.set('relatedQuestionLinkList',item['relatedQuestionLinkList'])
 
             questionInfo.save()
             print "Ssssssssssssssssaved!"
          except LeanCloudError,e:
             print e
-         finally:
-            return item
+
+         return item

@@ -88,7 +88,7 @@ class QuesinfoerSpider(scrapy.Spider):
 
         item =  ZhquesinfoItem()
         print "parsePage ing......"
-        inspect_response(response,self)
+    #    inspect_response(response,self)
         #inspect_response(response,self)
         #item['testPageHTML'] = response.xpath('//body').extract()
        # print response.body
@@ -103,6 +103,7 @@ class QuesinfoerSpider(scrapy.Spider):
             item['tagLabelHrefList'] = []
             item['tagLabelDataTopicIdList'] =[]
             print e
+            print "1"
 
         item['questionTitle'] = response.xpath('//div[@id="zh-question-title"]/h2/text()').extract()[0] #right
 
@@ -122,6 +123,7 @@ class QuesinfoerSpider(scrapy.Spider):
         except IndexError,e:
             item['questionAnswerNum'] = 0
             print e
+            print '2'
         #item['dataPageSize'] = response.xpath('//*[@id="zh-question-answer-wrap"]').extract()
         #item['pageSize'] = response.xpath('').extract()
         #item['offset'] = response.xpath('').extract()
@@ -144,6 +146,7 @@ class QuesinfoerSpider(scrapy.Spider):
         except IndexError,e:
             item['questionFollowerCount'] = 0
             print e
+            print '3'
         #item['quescommentcounttionFollowerList'] = response.xpath('//*[@id="zh-question-side-header-wrap"]/div[@class="zh-question-followers-sidebar"]/div[2]').extract()
 
         #item['sideSectionId'] = response.xpath('//*[@id="shameimaru-question-up-83594d68c"]').extract()
@@ -168,12 +171,14 @@ class QuesinfoerSpider(scrapy.Spider):
             item['questionDetail'] = response.xpath('//div[@id="zh-question-detail"]/textarea/text()').extract()[0]   #should try
         except IndexError,e:
             item['questionDetail'] = response.xpath('//*[@id="zh-question-detail"]/div/text()').extract()[0]
-            print e
+           # print e
+            print '4'
         try:
             item['relatedQuestionLinkList'] = response.xpath('//*[@id="zh-question-related-questions"]//ul//li//a/@href').extract()     #should try
         except IndexError,e:
             item['relatedQuestionLinkList'] = []
             print e
+            print '5'
 
         try:
             item['quesCommentCount'] = response.xpath('//div[@id="zh-question-meta-wrap"]//a[@name="addcomment"]/text()[2]').re('\d*')[0]   # should try
@@ -185,8 +190,9 @@ class QuesinfoerSpider(scrapy.Spider):
         except IndexError,e:
             item['quesCommentCount'] = 0
             print e
+            print '6'
 
-        print response.status
+      #  print response.status
         return item
 
         # for index,url in enumerate(self.urls):
