@@ -104,7 +104,11 @@ class QuesinfoerSpider(scrapy.Spider):
         item['questionTitle'] = response.xpath('//div[@id="zh-question-title"]/h2/text()').extract()[0] #right
 
         try:
-            item['questionDetail'] = response.xpath('//div[@id="zh-question-detail"]/div[@class="zm-editable-content"]/text()').extract()[0]
+            item['questionDetail'] = response.xpath('//div[@id="zh-question-detail"]/div[@class="zm-editable-content"]/text()').extract()
+            if  item['questionDetail'] :
+                item['questionDetail'] = item['questionDetail'][0]
+            else:
+                item['questionDetail'] = ''
         except:
             item['questionDetail'] = response.xpath('//div[@id="zh-question-detail"]/textarea[@class="content hidden"]/text()').extract()[0]
 
