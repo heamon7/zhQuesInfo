@@ -16,7 +16,7 @@ NEWSPIDER_MODULE = 'zhQuesInfo.spiders'
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'zhQuesInfo (+http://www.yourdomain.com)'
 
-#LOG_LEVEL = 'INFO'
+LOG_LEVEL = 'INFO'
 ITEM_PIPELINES = {
     'zhQuesInfo.pipelines.QuesInfoPipeline': 300,
    # 'zhihut.pipelines.SecondPipline': 800,
