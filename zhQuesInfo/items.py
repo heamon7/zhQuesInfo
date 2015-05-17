@@ -25,14 +25,21 @@ class ZhquesinfoItem(scrapy.Item):
     questionDetail = scrapy.Field() #   //*[@id="zh-question-detail"]
     dataResourceId = scrapy.Field() #   //*[@id="zh-question-detail"]   or  //*[@id="zh-question-answer-summary"]
 
-    zmEditableContent = scrapy.Field()  # not always exists  //*[@id="zh-question-detail"]/div
-    questionContentHidden = scrapy.Field()  # not always exists    //*[@id="zh-question-detail"]/textarea
-    questionSummary = scrapy.Field()    # not always exists     //*[@id="zh-question-detail"]/div
+    #zmEditableContent = scrapy.Field()  # not always exists  //*[@id="zh-question-detail"]/div
+    #questionContentHidden = scrapy.Field()  # not always exists    //*[@id="zh-question-detail"]/textarea
+    #questionSummary = scrapy.Field()    # not always exists     //*[@id="zh-question-detail"]/div
 
     quesCommentCount = scrapy.Field()   #   //*[@id="zh-question-meta-wrap"]/div[1]/a[2]/text()
     quesCommentLink = scrapy.Field()    # need to analyze httpreq
 
     questionAnswerNum = scrapy.Field()  #   //*[@id="zh-question-answer-num"]
+
+
+
+
+
+
+
 
     dataPageSize = scrapy.Field()
     # 注意这里的 dataInit 值得注意   //*[@id="zh-question-answer-wrap"]

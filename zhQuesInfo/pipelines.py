@@ -19,7 +19,6 @@ class QuesInfoPipeline(object):
          TestQuestionInfo = Object.extend('TestQuestionInfo')
          questionInfo = TestQuestionInfo()
          try:
-            print 'haha'
             questionInfo.set('idZnonceContent',item['idZnonceContent'])
             questionInfo.set('dataUrlToken',item['dataUrlToken'])
             questionInfo.set('isTopQuestion',item['isTopQuestion'])
@@ -35,12 +34,11 @@ class QuesInfoPipeline(object):
             questionInfo.set('questionDetail',item['questionDetail'])
             questionInfo.set('relatedQuestionLinkList',item['relatedQuestionLinkList'])
             questionInfo.set('quesCommentCount',item['quesCommentCount'])
-            questionInfo.set('relatedQuestionLinkList',item['relatedQuestionLinkList'])
-   #         questionInfo.set('relatedQuestionLinkList',item['relatedQuestionLinkList'])
-
+            questionInfo.set('visitsCount',item['visitsCount'])
             questionInfo.save()
-            print "Ssssssssssssssssaved!"
          except LeanCloudError,e:
-            print e
+             print e
 
-         return item
+
+
+         DropItem()
