@@ -17,6 +17,7 @@ from leancloud import LeanCloudError
 from leancloud import Query
 
 from datetime import datetime
+from zhQuesInfo import settings
 
 from zhQuesInfo.items import ZhquesinfoItem
 import bmemcached
