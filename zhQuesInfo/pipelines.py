@@ -25,7 +25,7 @@ class QuesInfoPipeline(object):
         if self.client.get(item['questionId']):
             pass
         else:
-            tableIndex = int(item['questionTimestamp']) % self.dbPrime
+            tableIndex = int(item['dataUrlToken']) % self.dbPrime
             if tableIndex < 10:
                 tableIndexStr = '0' + str(tableIndex)
             else:
