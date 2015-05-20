@@ -40,7 +40,7 @@ class QuesinfoerSpider(scrapy.Spider):
 
         leancloud.init(settings.APP_ID_S, master_key=settings.MASTER_KEY_S)
         client_s = bmemcached.Client(settings.CACHE_SERVER_S,settings.CACHE_USER_S,settings.CACHE_PASSWORD_S)
-        dbPrime = 2
+        dbPrime = 1
 
         for tableIndex in range(dbPrime):
             if tableIndex < 10:

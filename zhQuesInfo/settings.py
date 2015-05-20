@@ -57,7 +57,7 @@ SPIDER_MIDDDLEWARES = {
     'scrapy.contrib.spidermiddleware.httperror.HttpErrorMiddleware':300,
 }
 
-DUPEFILTER_CLASS = 'zhQuesFront.custom_filters.SeenURLFilter'
+DUPEFILTER_CLASS = 'zhQuesInfo.custom_filters.SeenURLFilter'
 
 
 #AJAXCRAWL_ENABLED = True
