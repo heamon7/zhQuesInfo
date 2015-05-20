@@ -10,15 +10,30 @@ from leancloud import LeanCloudError
 from leancloud import Query
 from scrapy import log
 from scrapy.exceptions import DropItem
+from zhQuesInfo import settings
+import bmemcached
 
 class QuesInfoPipeline(object):
+    dbPrime = 97
+
     def __init__(self):
-        leancloud.init('dh9dwra0dkin5zv2en2gj6jndplwnl5aqr15uv540mhzjpqp', master_key='bmblhzxwa4lww1beek9288m7tc4crio1fhahxohgsu31yai4')
+        leancloud.init(settings.APP_ID, master_key=settings.MASTER_KEY)
+        self.client = bmemcached.Client(settings.CACHE_SERVER,settings.CACHE_USER,settings.CACHE_PASSWORD)
+
         pass
     def process_item(self, item, spider):
-         TestQuestionInfo = Object.extend('TestQuestionInfo')
-         questionInfo = TestQuestionInfo()
-         try:
+        if self.client.get(item['questionId']):
+            pass
+        else:
+            tableIndex = int(item['questionTimestamp']) % self.dbPrime
+            if tableIndex < 10:
+                tableIndexStr = '0' + str(tableIndex)
+            else:
+                tableIndexStr = str(tableIndex)
+            QuestionInfo = Object.extend('QuestionInfo'+tableIndexStr)
+            questionInfo = QuestionInfo()
+
+            questionInfo.set('questionId',item['questionId'])
             questionInfo.set('idZnonceContent',item['idZnonceContent'])
             questionInfo.set('dataUrlToken',item['dataUrlToken'])
             questionInfo.set('isTopQuestion',item['isTopQuestion'])
@@ -35,10 +50,19 @@ class QuesInfoPipeline(object):
             questionInfo.set('relatedQuestionLinkList',item['relatedQuestionLinkList'])
             questionInfo.set('quesCommentCount',item['quesCommentCount'])
             questionInfo.set('visitsCount',item['visitsCount'])
-            questionInfo.save()
-         except LeanCloudError,e:
-             print e
+
+            try:
+
+                questionInfo.save()
+                self.client.set(str(item['questionId']),1,0)
+            except LeanCloudError,e:
+                try:
+                    questionInfo.save()
+                    self.client.set(str(item['questionId']),1,0)
+
+                except LeanCloudError,e:
+                    print e
 
 
 
-         DropItem()
+        DropItem()

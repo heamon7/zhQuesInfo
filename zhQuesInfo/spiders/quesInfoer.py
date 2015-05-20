@@ -8,6 +8,8 @@ from scrapy.conf import settings
 from scrapy import log
 from scrapy.shell import inspect_response
 
+import bmemcached
+
 import leancloud
 
 from leancloud import Object
@@ -17,47 +19,102 @@ from leancloud import Query
 from datetime import datetime
 
 from zhQuesInfo.items import ZhquesinfoItem
-
-
+import bmemcached
+import re
 
 
 class QuesinfoerSpider(scrapy.Spider):
     name = "quesInfoer"
     allowed_domains = ["zhihu.com"]
+    baseUrl = "http://www.zhihu.com/question/"
     start_urls = (
         'http://www.zhihu.com/',
     )
+    questionIdList = []
 
-    def __init__(self):
-         print "Initianizing ....."
-         leancloud.init('dh9dwra0dkin5zv2en2gj6jndplwnl5aqr15uv540mhzjpqp', master_key='bmblhzxwa4lww1beek9288m7tc4crio1fhahxohgsu31yai4')
+    def __init__(self,stats):
+        self.stats = stats
+        print "Initianizing ....."
+
+        leancloud.init(settings.APP_ID_S, master_key=settings.MASTER_KEY_S)
+        client_s = bmemcached.Client(settings.CACHE_SERVER_S,settings.CACHE_USER_S,settings.CACHE_PASSWORD_S)
+        dbPrime = 2
+
+        for tableIndex in range(dbPrime):
+            if tableIndex < 10:
+                tableIndexStr = '0' + str(tableIndex)
+            else:
+                tableIndexStr = str(tableIndex)
+
+            Question = Object.extend('Question' + tableIndexStr)
+            query = Query(Question)
+            query.exists('questionId')
+
+            # 避免在查询时，仍然有新的Question入库
+            # curTime = datetime.now()
+            # query.less_than('createdAt',curTime)
+
+            questionNum = query.count()
+            print "[%s] total questionNums: %d in tableIndex: %s\n" %(datetime.now(),questionNum, tableIndexStr)
+            queryLimit = 700
+            queryTimes = questionNum/queryLimit + 1
+
+            for index in range(queryTimes):
+                query = Query(Question)
+                # query.less_than('createdAt',Question)
+                query.exists('questionId')
+                query.descending('createdAt')
+                query.limit(queryLimit)
+                query.skip(index*queryLimit)
+                query.select('questionId')
+
+                try:
+                    quesRet = query.find()
+                except:
+                    try:
+                        quesRet = query.find()
+                    except:
+                        try:
+                            quesRet = query.find()
+                        except:
+                            quesRet = query.find()
+
+
+                for ques in quesRet:
+                    self.questionIdList.append(ques.get('questionId'))
+                    totalCount = client_s.incr('totalCount',1)
+                    client_s.set(str(totalCount),int(ques.get('questionId')))
+
+
+
+         # Questions = Object.extend('Questions')
+         # query = Query(Questions)
+         # query.exists('questionId')
+         # curTime = datetime.now()
+         # query.less_than('createdAt',curTime)
          #
-         Questions = Object.extend('Questions')
-         question = Questions()
-         #
-         query = Query(Questions)
-         query.exists('questionLinkHref')
-         curTime = datetime.now()
-         query.less_than('createdAt',curTime)
-         questionNum = query.count()
-         print "questionNums: %s" %str(questionNum)
-         queryLimit = 500
-         queryTimes = questionNum/queryLimit + 1
-         self.urls = []
-         for index in range(queryTimes):
-            query = Query(Questions)
-            query.less_than('createdAt',curTime)
-            query.exists('questionLinkHref')
-            query.descending('createdAt')
-            query.limit(queryLimit)
-            query.skip(index*queryLimit)
-            query.select('questionLinkHref')
-            quesRet = query.find()
-            for ques in quesRet:
-                self.urls.append("http://www.zhihu.com"+ ques.get('questionLinkHref'))
+         # questionNum = query.count()
+         # print "questionNums: %s" %str(questionNum)
+         # queryLimit = 500
+         # queryTimes = questionNum/queryLimit + 1
+         # self.urls = []
+         # for index in range(queryTimes):
+         #    query = Query(Questions)
+         #    query.less_than('createdAt',curTime)
+         #    query.exists('questionLinkHref')
+         #    query.descending('createdAt')
+         #    query.limit(queryLimit)
+         #    query.skip(index*queryLimit)
+         #    query.select('questionLinkHref')
+         #    quesRet = query.find()
+         #    for ques in quesRet:
+         #        self.urls.append("http://www.zhihu.com"+ ques.get('questionLinkHref'))
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(crawler.stats)
 
     def start_requests(self):
-        print "start_requests ing ......"
+        #print "start_requests ing ......"
         return [Request("http://www.zhihu.com",callback = self.post_login)]
 
     def post_login(self,response):
@@ -80,15 +137,15 @@ class QuesinfoerSpider(scrapy.Spider):
         print "after_login ing ....."
         #inspect_response(response,self)
         #self.urls = ['http://www.zhihu.com/question/28626263','http://www.zhihu.com/question/22921426','http://www.zhihu.com/question/20123112']
-        for url in self.urls:
-            yield self.make_requests_from_url(url)
+        for questionId in self.questionIdList:
+            yield self.make_requests_from_url(self.baseUrl +str(questionId))
 
 
     def parse(self,response):
 
         item =  ZhquesinfoItem()
         print "parsePage ing......"
-
+        item['questionId'] = re.split('http://www.zhihu.com/question/',response.url)[1]
         item['idZnonceContent'] = response.xpath('//*[@id="znonce"]/@content').extract()[0]  #right
         item['dataUrlToken'] = response.xpath('//*[@id="zh-single-question-page"]/@data-urltoken').extract()[0] #right
         item['isTopQuestion'] = response.xpath('//*[@id="zh-single-question-page"]/meta[@itemprop="isTopQuestion"]/@content').extract()[0]    #right
@@ -196,8 +253,21 @@ class QuesinfoerSpider(scrapy.Spider):
 
 
 
+    def closed(self,reason):
+        #f = open('../../nohup.out')
+        #print f.read()
+        leancloud.init(settings.APP_ID, master_key=settings.MASTER_KEY)
 
 
+        CrawlerLog = Object.extend('CrawlerLog')
+        crawlerLog = CrawlerLog()
 
+        crawlerLog.set('crawlerName',self.name)
+        crawlerLog.set('closedReason',reason)
+        crawlerLog.set('crawlerStats',self.stats.get_stats())
+        try:
+            crawlerLog.save()
+        except:
+            pass
 
 

@@ -11,6 +11,7 @@ import scrapy
 class ZhquesinfoItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
+    questionId = scrapy.Field()
     idZnonceContent =  scrapy.Field()   #   //*[@id="znonce"]
 
     dataUrlToken = scrapy.Field()   #   //*[@id="zh-single-question-page"]

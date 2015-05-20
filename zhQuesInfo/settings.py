@@ -16,6 +16,25 @@ NEWSPIDER_MODULE = 'zhQuesInfo.spiders'
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'zhQuesInfo (+http://www.yourdomain.com)'
 
+APP_ID_S = '8scc82ncveedyt6p8ilcz2auzoahzvpu2y800m5075f9flp9'
+MASTER_KEY_S = '06vseo6z44ummz0fgv0u6no7vnzqr4fbob0y2mxz6cv47p92'
+
+APP_ID = 'pyel76nz3xvyymi1l381hov3mw96ind5an3t0rqnfbr99ps0'
+MASTER_KEY = '7ggn70dmmkajxabz4qg9oqed5ca6cv3en1a83m5nz5v92dn7'
+
+CACHE_SERVER_S = '7030b81da1324743.m.cnbjalinu16pub001.ocs.aliyuncs.com:11211'
+CACHE_USER_S = '7030b81da1324743'
+CACHE_PASSWORD_S = 'Zhihucache2'
+
+CACHE_SERVER = '92a2b309a9f145d2.m.cnbjalinu16pub001.ocs.aliyuncs.com:11211'
+CACHE_USER = '92a2b309a9f145d2'
+CACHE_PASSWORD = 'Zhihucache3'
+
+DOWNLOAD_TIMEOUT = 700
+
+CONCURRENT_REQUESTS = 70
+CONCURRENT_REQUESTS_PER_DOMAIN = 70
+
 LOG_LEVEL = 'INFO'
 ITEM_PIPELINES = {
     'zhQuesInfo.pipelines.QuesInfoPipeline': 300,
