@@ -15,6 +15,7 @@ import bmemcached
 
 class QuesInfoPipeline(object):
     dbPrime = 97
+    questionInfoList =[]
 
     def __init__(self):
         leancloud.init(settings.APP_ID, master_key=settings.MASTER_KEY)
@@ -51,14 +52,26 @@ class QuesInfoPipeline(object):
             questionInfo.set('quesCommentCount',item['quesCommentCount'])
             questionInfo.set('visitsCount',item['visitsCount'])
 
-            try:
+            self.questionInfoList.append(int(tableIndex))
+            if item['isTopQuestion'] == 'true':
+                self.questionInfoList.append(1)
+            else:
+                self.questionInfoList.append(0)
 
+            self.questionInfoList.append(int(item['dataResourceId']))
+            self.questionInfoList.append(int(item['questionAnswerNum']))
+            self.questionInfoList.append(int(item['questionFollowerCount']))
+            self.questionInfoList.append(int(item['quesCommentCount']))
+
+            self.client.set(str(item['questionId']),self.questionInfoList,0)
+            self.client.incr('totalCount',1)
+
+
+            try:
                 questionInfo.save()
-                self.client.set(str(item['questionId']),1,0)
             except LeanCloudError,e:
                 try:
                     questionInfo.save()
-                    self.client.set(str(item['questionId']),1,0)
 
                 except LeanCloudError,e:
                     print e

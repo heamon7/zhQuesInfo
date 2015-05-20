@@ -19,8 +19,8 @@ NEWSPIDER_MODULE = 'zhQuesInfo.spiders'
 APP_ID_S = '8scc82ncveedyt6p8ilcz2auzoahzvpu2y800m5075f9flp9'
 MASTER_KEY_S = '06vseo6z44ummz0fgv0u6no7vnzqr4fbob0y2mxz6cv47p92'
 
-APP_ID = 'pyel76nz3xvyymi1l381hov3mw96ind5an3t0rqnfbr99ps0'
-MASTER_KEY = '7ggn70dmmkajxabz4qg9oqed5ca6cv3en1a83m5nz5v92dn7'
+APP_ID = 'o8j3kf0t5gnbja2b1zlqw8wphcvu736ny6i4ur59d633iwh1'
+MASTER_KEY = 'pvd74v94rfswr5hex6dwxtw0s7ytfr0jlqo0l03t52aamod9'
 
 CACHE_SERVER_S = '7030b81da1324743.m.cnbjalinu16pub001.ocs.aliyuncs.com:11211'
 CACHE_USER_S = '7030b81da1324743'
@@ -52,6 +52,12 @@ DEFAULT_REQUEST_HEADERS = {
 }
 
 USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36'
+
+SPIDER_MIDDDLEWARES = {
+    'scrapy.contrib.spidermiddleware.httperror.HttpErrorMiddleware':300,
+}
+
+DUPEFILTER_CLASS = 'zhQuesFront.custom_filters.SeenURLFilter'
 
 
 #AJAXCRAWL_ENABLED = True

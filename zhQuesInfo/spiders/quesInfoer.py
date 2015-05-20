@@ -32,6 +32,7 @@ class QuesinfoerSpider(scrapy.Spider):
         'http://www.zhihu.com/',
     )
     questionIdList = []
+    handle_httpstatus_list = [401,429,500]
 
     def __init__(self,stats):
         self.stats = stats
@@ -143,110 +144,115 @@ class QuesinfoerSpider(scrapy.Spider):
 
 
     def parse(self,response):
+        if response.status != 200:
+#            print "ParsePage HTTPStatusCode: %s Retrying !" %str(response.status)
+            yield  self.make_requests_from_url(response.url)
 
-        item =  ZhquesinfoItem()
-        print "parsePage ing......"
-        item['questionId'] = re.split('http://www.zhihu.com/question/',response.url)[1]
-        item['idZnonceContent'] = response.xpath('//*[@id="znonce"]/@content').extract()[0]  #right
-        item['dataUrlToken'] = response.xpath('//*[@id="zh-single-question-page"]/@data-urltoken').extract()[0] #right
-        item['isTopQuestion'] = response.xpath('//*[@id="zh-single-question-page"]/meta[@itemprop="isTopQuestion"]/@content').extract()[0]    #right
-        item['visitsCount'] = response.xpath('//*[@id="zh-single-question-page"]/meta[@itemprop="visitsCount"]/@content').extract()[0]    #right
-        try:
-            item['tagLabelHrefList'] = response.xpath('//div[@id="zh-single-question-page"]//div[@class="zm-tag-editor-labels zg-clear"]/a/@href').extract()   #right
-            item ['tagLabelDataTopicIdList'] = response.xpath('//div[@id="zh-single-question-page"]//div[@class="zm-tag-editor-labels zg-clear"]/a/@data-topicid').extract()   #right
-        except IndexError,e:
-            item['tagLabelHrefList'] = []
-            item['tagLabelDataTopicIdList'] =[]
-            #print e
+        else:
 
-        item['questionTitle'] = response.xpath('//div[@id="zh-question-title"]/h2/text()').extract()[0] #right
+            item =  ZhquesinfoItem()
+            #print "parsePage ing......"
+            item['questionId'] = re.split('http://www.zhihu.com/question/',response.url)[1]
+            item['idZnonceContent'] = response.xpath('//*[@id="znonce"]/@content').extract()[0]  #right
+            item['dataUrlToken'] = response.xpath('//*[@id="zh-single-question-page"]/@data-urltoken').extract()[0] #right
+            item['isTopQuestion'] = response.xpath('//*[@id="zh-single-question-page"]/meta[@itemprop="isTopQuestion"]/@content').extract()[0]    #right
+            item['visitsCount'] = response.xpath('//*[@id="zh-single-question-page"]/meta[@itemprop="visitsCount"]/@content').extract()[0]    #right
+            try:
+                item['tagLabelHrefList'] = response.xpath('//div[@id="zh-single-question-page"]//div[@class="zm-tag-editor-labels zg-clear"]/a/@href').extract()   #right
+                item ['tagLabelDataTopicIdList'] = response.xpath('//div[@id="zh-single-question-page"]//div[@class="zm-tag-editor-labels zg-clear"]/a/@data-topicid').extract()   #right
+            except IndexError,e:
+                item['tagLabelHrefList'] = []
+                item['tagLabelDataTopicIdList'] =[]
+                #print e
 
-        try:
-            item['questionDetail'] = response.xpath('//div[@id="zh-question-detail"]/div[@class="zm-editable-content"]/text()').extract()
-            if  item['questionDetail'] :
-                item['questionDetail'] = item['questionDetail'][0]
-            else:
-                item['questionDetail'] = ''
-        except:
-            item['questionDetail'] = response.xpath('//div[@id="zh-question-detail"]/textarea[@class="content hidden"]/text()').extract()[0]
+            item['questionTitle'] = response.xpath('//div[@id="zh-question-title"]/h2/text()').extract()[0] #right
 
-        item['dataResourceId'] = response.xpath('//div[@id="zh-question-detail"]/@data-resourceid').extract()[0]    #right
+            try:
+                item['questionDetail'] = response.xpath('//div[@id="zh-question-detail"]/div[@class="zm-editable-content"]/text()').extract()
+                if  item['questionDetail'] :
+                    item['questionDetail'] = item['questionDetail'][0]
+                else:
+                    item['questionDetail'] = ''
+            except:
+                item['questionDetail'] = response.xpath('//div[@id="zh-question-detail"]/textarea[@class="content hidden"]/text()').extract()[0]
+
+            item['dataResourceId'] = response.xpath('//div[@id="zh-question-detail"]/@data-resourceid').extract()[0]    #right
 
 
-        try:
-            item['quesCommentCount'] = response.xpath('//div[@id="zh-question-meta-wrap"]//a[@name="addcomment"]/text()[2]').re('\d*')[0]   # should try
-            if item['quesCommentCount']:
-                item['quesCommentCount'] = int (item['quesCommentCount'])
-            else:
+            try:
+                item['quesCommentCount'] = response.xpath('//div[@id="zh-question-meta-wrap"]//a[@name="addcomment"]/text()[2]').re('\d*')[0]   # should try
+                if item['quesCommentCount']:
+                    item['quesCommentCount'] = int (item['quesCommentCount'])
+                else:
+                    item['quesCommentCount'] = 0
+
+            except IndexError,e:
                 item['quesCommentCount'] = 0
 
-        except IndexError,e:
-            item['quesCommentCount'] = 0
+            #item['quesCommentLink'] = response.xpath('').extract()
+            try:
+                item['questionAnswerNum'] = int(response.xpath('//*[@id="zh-question-answer-num"]/@data-num').extract()[0])  #right
+            except IndexError,e:
+                item['questionAnswerNum'] = 0
 
-        #item['quesCommentLink'] = response.xpath('').extract()
-        try:
-            item['questionAnswerNum'] = int(response.xpath('//*[@id="zh-question-answer-num"]/@data-num').extract()[0])  #right
-        except IndexError,e:
-            item['questionAnswerNum'] = 0
-
-        #item['dataPageSize'] = response.xpath('//*[@id="zh-question-answer-wrap"]').extract()
-        #item['pageSize'] = response.xpath('').extract()
-        #item['offset'] = response.xpath('').extract()
-        #item['nodeName'] = response.xpath('//*[@id="zh-question-answer-wrap"]/@nodename').extract()
+            #item['dataPageSize'] = response.xpath('//*[@id="zh-question-answer-wrap"]').extract()
+            #item['pageSize'] = response.xpath('').extract()
+            #item['offset'] = response.xpath('').extract()
+            #item['nodeName'] = response.xpath('//*[@id="zh-question-answer-wrap"]/@nodename').extract()
 
 
-        # item['dataAid'] = response.xpath('//*[@id="zh-question-answer-wrap"]/div[1]').extract()
-        #
-        # item['dataAtoken'] = response.xpath('').extract()
-        # item['dataCreated'] = response.xpath('').extract()
-        # item['dataDeleted'] = response.xpath('').extract()
-        # item['dataHelpful'] = response.xpath('').extract()
-        # item['dataScore'] = response.xpath('').extract()
+            # item['dataAid'] = response.xpath('//*[@id="zh-question-answer-wrap"]/div[1]').extract()
+            #
+            # item['dataAtoken'] = response.xpath('').extract()
+            # item['dataCreated'] = response.xpath('').extract()
+            # item['dataDeleted'] = response.xpath('').extract()
+            # item['dataHelpful'] = response.xpath('').extract()
+            # item['dataScore'] = response.xpath('').extract()
 
-        #item['questionFollowDataId'] = response.xpath('//*[@id="zh-question-side-header-wrap"]/button').extract()
+            #item['questionFollowDataId'] = response.xpath('//*[@id="zh-question-side-header-wrap"]/button').extract()
 
-        #item['questionFollowerLink'] = response.xpath('//*[@id="zh-question-side-header-wrap"]/div[@class="zh-question-followers-sidebar"]/div[1]/a/@href').extract()[0]
-        try:
-            item['questionFollowerCount'] = int(response.xpath('//*[@id="zh-question-side-header-wrap"]/div[@class="zh-question-followers-sidebar"]/div[1]/a/strong/text()').extract()[0])  #right
-        except IndexError,e:
-            item['questionFollowerCount'] = 0
+            #item['questionFollowerLink'] = response.xpath('//*[@id="zh-question-side-header-wrap"]/div[@class="zh-question-followers-sidebar"]/div[1]/a/@href').extract()[0]
+            try:
+                item['questionFollowerCount'] = int(response.xpath('//*[@id="zh-question-side-header-wrap"]/div[@class="zh-question-followers-sidebar"]/div[1]/a/strong/text()').extract()[0])  #right
+            except IndexError,e:
+                item['questionFollowerCount'] = 0
 
-        #item['quescommentcounttionFollowerList'] = response.xpath('//*[@id="zh-question-side-header-wrap"]/div[@class="zh-question-followers-sidebar"]/div[2]').extract()
+            #item['quescommentcounttionFollowerList'] = response.xpath('//*[@id="zh-question-side-header-wrap"]/div[@class="zh-question-followers-sidebar"]/div[2]').extract()
 
-        #item['sideSectionId'] = response.xpath('//*[@id="shameimaru-question-up-83594d68c"]').extract()
-
-
-        #item['shareDataId'] = response.xpath('//*[@id="zh-question-webshare-container"]').extract()
+            #item['sideSectionId'] = response.xpath('//*[@id="shameimaru-question-up-83594d68c"]').extract()
 
 
-        # item[''] = response.xpath('').extract()
-        # item[''] = response.xpath('').extract()
-        # item[''] = response.xpath('').extract()
+            #item['shareDataId'] = response.xpath('//*[@id="zh-question-webshare-container"]').extract()
 
 
-        item['questionLatestActiveTime'] = response.xpath('//*[@id="zh-single-question-page"]//span[@class="time"]/text()').extract()[0]
-       # item['questionLog'] = response.xpath('//*[@id="zh-single-question-page"]/div[2]/div[5]/div/div[1]/a').extract()[0]
-        try:
-            item['questionShowTimes'] = int(response.xpath('//*[@id="zh-single-question-page"]/div[@class="zu-main-sidebar"]/div[last()-1]//div[@class="zg-gray-normal"][2]/strong[1]/text()').extract()[0])
-        except:
-            item['questionShowTimes'] = int(response.xpath('//*[@id="zh-single-question-page"]/div[@class="zu-main-sidebar"]/div[last()]//div[@class="zg-gray-normal"][2]/strong[1]/text()').extract()[0])
-
-        try:
-            item['topicRelatedFollowerCount'] = int(response.xpath('//*[@id="zh-single-question-page"]/div[@class="zu-main-sidebar"]/div[last()-1]//div[@class="zg-gray-normal"][2]/strong[2]/text()').extract()[0])
-        except:
-            item['topicRelatedFollowerCount'] = int(response.xpath('//*[@id="zh-single-question-page"]/div[@class="zu-main-sidebar"]/div[last()]//div[@class="zg-gray-normal"][2]/strong[2]/text()').extract()[0])
-       # item['questionFollowerCount'] = response.xpath('//*[@id="zh-question-side-header-wrap"]/div[2]/div[1]/a/strong').extract()[0]
+            # item[''] = response.xpath('').extract()
+            # item[''] = response.xpath('').extract()
+            # item[''] = response.xpath('').extract()
 
 
-        try:
-            item['relatedQuestionLinkList'] = response.xpath('//*[@id="zh-question-related-questions"]//ul//li//a/@href').extract()     #should try
-        except IndexError,e:
-            item['relatedQuestionLinkList'] = []
+            item['questionLatestActiveTime'] = response.xpath('//*[@id="zh-single-question-page"]//span[@class="time"]/text()').extract()[0]
+           # item['questionLog'] = response.xpath('//*[@id="zh-single-question-page"]/div[2]/div[5]/div/div[1]/a').extract()[0]
+            try:
+                item['questionShowTimes'] = int(response.xpath('//*[@id="zh-single-question-page"]/div[@class="zu-main-sidebar"]/div[last()-1]//div[@class="zg-gray-normal"][2]/strong[1]/text()').extract()[0])
+            except:
+                item['questionShowTimes'] = int(response.xpath('//*[@id="zh-single-question-page"]/div[@class="zu-main-sidebar"]/div[last()]//div[@class="zg-gray-normal"][2]/strong[1]/text()').extract()[0])
+
+            try:
+                item['topicRelatedFollowerCount'] = int(response.xpath('//*[@id="zh-single-question-page"]/div[@class="zu-main-sidebar"]/div[last()-1]//div[@class="zg-gray-normal"][2]/strong[2]/text()').extract()[0])
+            except:
+                item['topicRelatedFollowerCount'] = int(response.xpath('//*[@id="zh-single-question-page"]/div[@class="zu-main-sidebar"]/div[last()]//div[@class="zg-gray-normal"][2]/strong[2]/text()').extract()[0])
+           # item['questionFollowerCount'] = response.xpath('//*[@id="zh-question-side-header-wrap"]/div[2]/div[1]/a/strong').extract()[0]
+
+
+            try:
+                item['relatedQuestionLinkList'] = response.xpath('//*[@id="zh-question-related-questions"]//ul//li//a/@href').extract()     #should try
+            except IndexError,e:
+                item['relatedQuestionLinkList'] = []
 
 
 
-      #  print response.status
-        return item
+          #  print response.status
+            yield item
 
         # for index,url in enumerate(self.urls):
         #     yield Request(url,meta = {'cookiejar':index},callback = self.parse_page)
