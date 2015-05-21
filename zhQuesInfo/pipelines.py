@@ -35,6 +35,7 @@ class QuesInfoPipeline(object):
         QuestionInfo = Object.extend('QuestionInfo'+tableIndexStr)
         questionInfo = QuestionInfo()
 
+        questionInfo.set('tableIndex',tableIndex)
         questionInfo.set('questionId',item['questionId'])
         questionInfo.set('idZnonceContent',item['idZnonceContent'])
         questionInfo.set('dataUrlToken',item['dataUrlToken'])
