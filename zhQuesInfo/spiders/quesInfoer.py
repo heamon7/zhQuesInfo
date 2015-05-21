@@ -44,6 +44,7 @@ class QuesinfoerSpider(scrapy.Spider):
 
         dbPrime = 97
         totalCount = int(client_s.get('totalCount'))
+        print "totalCount: %s" %str(totalCount)
         for questionIndex in range(0,totalCount+1):
             self.questionIdSet.add(int(client_s.get(str(questionIndex))[0]))
 
@@ -135,7 +136,7 @@ class QuesinfoerSpider(scrapy.Spider):
         yield Request("http://www.zhihu.com",callback = self.post_login)
 
     def post_login(self,response):
-        print "post_login ing ......"
+        #print "post_login ing ......"
         xsrfValue = response.xpath('/html/body/input[@name= "_xsrf"]/@value').extract()[0]
         yield FormRequest.from_response(response,
                                           #headers = self.headers,
@@ -151,7 +152,7 @@ class QuesinfoerSpider(scrapy.Spider):
                                           )
 
     def after_login(self,response):
-        print "after_login ing ....."
+        #print "after_login ing ....."
         #inspect_response(response,self)
         #self.urls = ['http://www.zhihu.com/question/28626263','http://www.zhihu.com/question/22921426','http://www.zhihu.com/question/20123112']
         for questionId in self.questionIdSet:
