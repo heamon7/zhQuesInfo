@@ -132,7 +132,7 @@ class QuesinfoerSpider(scrapy.Spider):
 
     def start_requests(self):
         #print "start_requests ing ......"
-        yield [Request("http://www.zhihu.com",callback = self.post_login)]
+        yield Request("http://www.zhihu.com",callback = self.post_login)
 
     def post_login(self,response):
         print "post_login ing ......"
@@ -145,7 +145,7 @@ class QuesinfoerSpider(scrapy.Spider):
                                               'password':'heamon8@()',
                                               'rememberme': 'y'
                                           },
-                                          #dont_filter = True,
+                                          dont_filter = True,
                                           callback = self.after_login,
                                          #dont_filter = True
                                           )
