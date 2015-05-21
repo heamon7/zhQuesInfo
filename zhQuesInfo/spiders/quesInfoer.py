@@ -145,7 +145,7 @@ class QuesinfoerSpider(scrapy.Spider):
                                               'password':'heamon8@()',
                                               'rememberme': 'y'
                                           },
-                                          dont_filter = True,
+                                          #dont_filter = True,
                                           callback = self.after_login
                                         #  dont_filter = True
                                           )]
