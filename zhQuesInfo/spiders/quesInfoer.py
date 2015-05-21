@@ -42,7 +42,7 @@ class QuesinfoerSpider(scrapy.Spider):
         leancloud.init(settings.APP_ID_S, master_key=settings.MASTER_KEY_S)
         client_s = bmemcached.Client(settings.CACHE_SERVER_S,settings.CACHE_USER_S,settings.CACHE_PASSWORD_S)
 
-        dbPrime = 1
+        dbPrime = 97
 
         for tableIndex in range(dbPrime):
             if tableIndex < 10:
@@ -168,7 +168,7 @@ class QuesinfoerSpider(scrapy.Spider):
             item['idZnonceContent'] = response.xpath('//*[@id="znonce"]/@content').extract()[0]  #right
             item['dataUrlToken'] = response.xpath('//*[@id="zh-single-question-page"]/@data-urltoken').extract()[0] #right
             item['isTopQuestion'] = response.xpath('//*[@id="zh-single-question-page"]/meta[@itemprop="isTopQuestion"]/@content').extract()[0]    #right
-            item['visitsCount'] = response.xpath('//*[@id="zh-single-question-page"]/meta[@itemprop="visitsCount"]/@content').extract()[0]    #right
+            item['visitsCount'] = int(response.xpath('//*[@id="zh-single-question-page"]/meta[@itemprop="visitsCount"]/@content').extract()[0])    #right
             try:
                 item['tagLabelHrefList'] = response.xpath('//div[@id="zh-single-question-page"]//div[@class="zm-tag-editor-labels zg-clear"]/a/@href').extract()   #right
                 item ['tagLabelDataTopicIdList'] = response.xpath('//div[@id="zh-single-question-page"]//div[@class="zm-tag-editor-labels zg-clear"]/a/@data-topicid').extract()   #right
