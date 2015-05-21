@@ -45,7 +45,7 @@ class QuesinfoerSpider(scrapy.Spider):
         dbPrime = 97
         totalCount = int(client_s.get('totalCount'))
         for questionIndex in range(0,totalCount+1):
-            self.questionIdSet.add(int(client_s.get(str(questionIndex))))
+            self.questionIdSet.add(int(client_s.get(str(questionIndex))[0]))
 
         # for tableIndex in range(dbPrime):
         #     if tableIndex < 10:
