@@ -84,15 +84,16 @@ class QuesinfoerSpider(scrapy.Spider):
                         except:
                             quesRet = query.find()
 
-                quesInfoList =[]
-                for ques in quesRet:
 
+                for ques in quesRet:
+                    quesInfoList =[]
                     questionId = int(ques.get('questionId'))
                     if questionId in self.questionIdSet :
                         pass
                     else:
 
                         client_s.incr('totalCount',1)
+                        client_s.incr(tableIndexStr,1)
                         quesInfoList.append(questionId)
                         quesInfoList.append(int(ques.get('tableIndex')))
                         self.questionIdSet.add(questionId)
