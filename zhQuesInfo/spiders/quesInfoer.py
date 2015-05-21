@@ -31,7 +31,8 @@ class QuesinfoerSpider(scrapy.Spider):
     start_urls = (
         'http://www.zhihu.com/',
     )
-    questionIdList = []
+    questionIdSet = set()
+
     handle_httpstatus_list = [401,429,500]
 
     def __init__(self,stats):
@@ -70,6 +71,7 @@ class QuesinfoerSpider(scrapy.Spider):
                 query.limit(queryLimit)
                 query.skip(index*queryLimit)
                 query.select('questionId')
+                query.select('tableIndex')
 
                 try:
                     quesRet = query.find()
@@ -82,12 +84,18 @@ class QuesinfoerSpider(scrapy.Spider):
                         except:
                             quesRet = query.find()
 
-
+                quesInfoList =[]
                 for ques in quesRet:
-                    totalCountStr = str(client_s.incr('totalCount',1))
+
                     questionId = int(ques.get('questionId'))
-                    self.questionIdList.append(questionId)
-                    client_s.set(totalCountStr,questionId)
+                    if questionId in self.questionIdSet :
+                        pass
+                    else:
+                        totalCountStr = 'C'+str(client_s.incr('totalCount',1))
+                        quesInfoList.append(questionId)
+                        quesInfoList.append(int(ques.get('tableIndex')))
+                        self.questionIdSet.add(questionId)
+                        client_s.set(totalCountStr,quesInfoList)
 
 
          # Questions = Object.extend('Questions')
@@ -140,7 +148,7 @@ class QuesinfoerSpider(scrapy.Spider):
         print "after_login ing ....."
         #inspect_response(response,self)
         #self.urls = ['http://www.zhihu.com/question/28626263','http://www.zhihu.com/question/22921426','http://www.zhihu.com/question/20123112']
-        for questionId in self.questionIdList:
+        for questionId in self.questionIdSet:
             yield self.make_requests_from_url(self.baseUrl +str(questionId))
 
 
