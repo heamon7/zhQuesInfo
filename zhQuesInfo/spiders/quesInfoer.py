@@ -93,7 +93,7 @@ class QuesinfoerSpider(scrapy.Spider):
                     else:
 
                         client_s.incr('totalCount',1)
-                        client_s.incr(tableIndexStr,1)
+                        client_s.incr('t'+tableIndexStr,1)
                         quesInfoList.append(questionId)
                         quesInfoList.append(int(ques.get('tableIndex')))
                         self.questionIdSet.add(questionId)

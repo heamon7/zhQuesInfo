@@ -70,7 +70,7 @@ class QuesInfoPipeline(object):
 
         self.client.set(str(item['questionId']),questionInfoList,0)
         self.client.incr('totalCount',1)
-        self.client.incr(str(tableIndexStr),1)
+        self.client.incr("t"+tableIndexStr,1)
 
 
         try:
