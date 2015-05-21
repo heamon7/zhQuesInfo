@@ -32,7 +32,7 @@ class QuesinfoerSpider(scrapy.Spider):
         'http://www.zhihu.com/',
     )
     questionIdSet = set()
-
+    quesIndex =0
     handle_httpstatus_list = [401,429,500]
 
     def __init__(self,stats):
@@ -91,11 +91,13 @@ class QuesinfoerSpider(scrapy.Spider):
                     if questionId in self.questionIdSet :
                         pass
                     else:
-                        totalCountStr = 'C'+str(client_s.incr('totalCount',1))
+
+                        client_s.incr('totalCount',1)
                         quesInfoList.append(questionId)
                         quesInfoList.append(int(ques.get('tableIndex')))
                         self.questionIdSet.add(questionId)
-                        client_s.set(totalCountStr,quesInfoList)
+                        client_s.set(str(self.quesIndex),quesInfoList)
+                        self.quesIndex +=1
 
 
          # Questions = Object.extend('Questions')
