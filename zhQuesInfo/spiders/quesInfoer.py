@@ -43,62 +43,65 @@ class QuesinfoerSpider(scrapy.Spider):
         client_s = bmemcached.Client(settings.CACHE_SERVER_S,settings.CACHE_USER_S,settings.CACHE_PASSWORD_S)
 
         dbPrime = 97
+        totalCount = client_s.get('totalCount')
+        for questionIndex in range(0,totalCount+1):
+            self.questionIdSet.add(client_s.get(str(questionIndex)))
 
-        for tableIndex in range(dbPrime):
-            if tableIndex < 10:
-                tableIndexStr = '0' + str(tableIndex)
-            else:
-                tableIndexStr = str(tableIndex)
+        # for tableIndex in range(dbPrime):
+        #     if tableIndex < 10:
+        #         tableIndexStr = '0' + str(tableIndex)
+        #     else:
+        #         tableIndexStr = str(tableIndex)
 
-            Question = Object.extend('Question' + tableIndexStr)
-            query = Query(Question)
-            query.exists('questionId')
-
-            # 避免在查询时，仍然有新的Question入库
-            # curTime = datetime.now()
-            # query.less_than('createdAt',curTime)
-
-            questionNum = query.count()
-            print "[%s] total questionNums: %d in tableIndex: %s\n" %(datetime.now(),questionNum, tableIndexStr)
-            queryLimit = 700
-            queryTimes = questionNum/queryLimit + 1
-
-            for index in range(queryTimes):
-                query = Query(Question)
-                # query.less_than('createdAt',Question)
-                query.exists('questionId')
-                query.descending('createdAt')
-                query.limit(queryLimit)
-                query.skip(index*queryLimit)
-                query.select('questionId')
-                query.select('tableIndex')
-
-                try:
-                    quesRet = query.find()
-                except:
-                    try:
-                        quesRet = query.find()
-                    except:
-                        try:
-                            quesRet = query.find()
-                        except:
-                            quesRet = query.find()
-
-
-                for ques in quesRet:
-                    quesInfoList =[]
-                    questionId = int(ques.get('questionId'))
-                    if questionId in self.questionIdSet :
-                        pass
-                    else:
-
-                        client_s.incr('totalCount',1)
-                        client_s.incr('t'+tableIndexStr,1)
-                        quesInfoList.append(questionId)
-                        quesInfoList.append(int(ques.get('tableIndex')))
-                        self.questionIdSet.add(questionId)
-                        client_s.set(str(self.quesIndex),quesInfoList)
-                        self.quesIndex +=1
+            # Question = Object.extend('Question' + tableIndexStr)
+            # query = Query(Question)
+            # query.exists('questionId')
+            #
+            # # 避免在查询时，仍然有新的Question入库
+            # # curTime = datetime.now()
+            # # query.less_than('createdAt',curTime)
+            #
+            # questionNum = query.count()
+            # print "[%s] total questionNums: %d in tableIndex: %s\n" %(datetime.now(),questionNum, tableIndexStr)
+            # queryLimit = 700
+            # queryTimes = questionNum/queryLimit + 1
+            #
+            # for index in range(queryTimes):
+            #     query = Query(Question)
+            #     # query.less_than('createdAt',Question)
+            #     query.exists('questionId')
+            #     query.descending('createdAt')
+            #     query.limit(queryLimit)
+            #     query.skip(index*queryLimit)
+            #     query.select('questionId')
+            #     query.select('tableIndex')
+            #
+            #     try:
+            #         quesRet = query.find()
+            #     except:
+            #         try:
+            #             quesRet = query.find()
+            #         except:
+            #             try:
+            #                 quesRet = query.find()
+            #             except:
+            #                 quesRet = query.find()
+            #
+            #
+            #     for ques in quesRet:
+            #         quesInfoList =[]
+            #         questionId = int(ques.get('questionId'))
+            #         if questionId in self.questionIdSet :
+            #             pass
+            #         else:
+            #
+            #             client_s.incr('totalCount',1)
+            #             client_s.incr('t'+tableIndexStr,1)
+            #             quesInfoList.append(questionId)
+            #             quesInfoList.append(int(ques.get('tableIndex')))
+            #             self.questionIdSet.add(questionId)
+            #             client_s.set(str(self.quesIndex),quesInfoList)
+            #             self.quesIndex +=1
 
 
          # Questions = Object.extend('Questions')
