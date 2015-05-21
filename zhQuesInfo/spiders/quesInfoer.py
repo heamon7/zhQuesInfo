@@ -147,7 +147,7 @@ class QuesinfoerSpider(scrapy.Spider):
                                           },
                                           #dont_filter = True,
                                           callback = self.after_login,
-                                         dont_filter = True
+                                         #dont_filter = True
                                           )
 
     def after_login(self,response):
