@@ -25,8 +25,11 @@ class QuesInfoPipeline(object):
     def process_item(self, item, spider):
         questionInfoList =[]
         questionId = str(item['questionId'])
-        tableIndex = (self.client1.get(questionId))[0]
 
+        try:
+            tableIndex = (self.client1.get(questionId))[0]
+        except:
+            tableIndex = 97
         #tableIndex = int(item['dataUrlToken']) % self.dbPrime
         if tableIndex < 10:
             tableIndexStr = '0' + str(tableIndex)
