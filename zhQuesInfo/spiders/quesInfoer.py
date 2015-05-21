@@ -43,9 +43,9 @@ class QuesinfoerSpider(scrapy.Spider):
         client_s = bmemcached.Client(settings.CACHE_SERVER_S,settings.CACHE_USER_S,settings.CACHE_PASSWORD_S)
 
         dbPrime = 97
-        totalCount = client_s.get('totalCount')
+        totalCount = int(client_s.get('totalCount'))
         for questionIndex in range(0,totalCount+1):
-            self.questionIdSet.add(client_s.get(str(questionIndex)))
+            self.questionIdSet.add(int(client_s.get(str(questionIndex))))
 
         # for tableIndex in range(dbPrime):
         #     if tableIndex < 10:
