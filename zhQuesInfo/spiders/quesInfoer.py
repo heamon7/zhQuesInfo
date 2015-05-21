@@ -44,7 +44,7 @@ class QuesinfoerSpider(scrapy.Spider):
 
         dbPrime = 97
         totalCount = int(client_s.get('totalCount'))
-        print "totalCount: %s" %str(totalCount)
+        print "totalCount: %s\n" %str(totalCount)
         for questionIndex in range(0,totalCount+1):
             self.questionIdSet.add(int(client_s.get(str(questionIndex))[0]))
 
