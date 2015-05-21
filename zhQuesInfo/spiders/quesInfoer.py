@@ -132,12 +132,12 @@ class QuesinfoerSpider(scrapy.Spider):
 
     def start_requests(self):
         #print "start_requests ing ......"
-        return [Request("http://www.zhihu.com",callback = self.post_login)]
+        yield [Request("http://www.zhihu.com",callback = self.post_login)]
 
     def post_login(self,response):
         print "post_login ing ......"
         xsrfValue = response.xpath('/html/body/input[@name= "_xsrf"]/@value').extract()[0]
-        return [FormRequest.from_response(response,
+        yield [FormRequest.from_response(response,
                                           #headers = self.headers,
                                           formdata={
                                               '_xsrf':xsrfValue,
