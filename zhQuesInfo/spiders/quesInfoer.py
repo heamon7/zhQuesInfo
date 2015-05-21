@@ -44,7 +44,7 @@ class QuesinfoerSpider(scrapy.Spider):
 
         dbPrime = 97
         totalCount = int(client_s.get('totalCount'))
-        for questionIndex in range(0,totalCount+1):
+        for questionIndex in range(0,1):
             self.questionIdSet.add(int(client_s.get(str(questionIndex))[0]))
 
         # for tableIndex in range(dbPrime):
@@ -137,7 +137,7 @@ class QuesinfoerSpider(scrapy.Spider):
     def post_login(self,response):
         print "post_login ing ......"
         xsrfValue = response.xpath('/html/body/input[@name= "_xsrf"]/@value').extract()[0]
-        yield FormRequest.from_response(response,
+        return [FormRequest.from_response(response,
                                           #headers = self.headers,
                                           formdata={
                                               '_xsrf':xsrfValue,
@@ -148,7 +148,7 @@ class QuesinfoerSpider(scrapy.Spider):
                                           dont_filter = True,
                                           callback = self.after_login
                                         #  dont_filter = True
-                                          )
+                                          )]
 
     def after_login(self,response):
         print "after_login ing ....."
