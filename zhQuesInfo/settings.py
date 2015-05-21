@@ -22,6 +22,10 @@ MASTER_KEY_S = '06vseo6z44ummz0fgv0u6no7vnzqr4fbob0y2mxz6cv47p92'
 APP_ID = 'o8j3kf0t5gnbja2b1zlqw8wphcvu736ny6i4ur59d633iwh1'
 MASTER_KEY = 'pvd74v94rfswr5hex6dwxtw0s7ytfr0jlqo0l03t52aamod9'
 
+CACHE_SERVER_1 = 'd69c4508ccc94dc4.m.cnbjalinu16pub001.ocs.aliyuncs.com:11211'
+CACHE_USER_1 = 'd69c4508ccc94dc4'
+CACHE_PASSWORD_1 = 'Zhihucache1'
+
 CACHE_SERVER_S = '7030b81da1324743.m.cnbjalinu16pub001.ocs.aliyuncs.com:11211'
 CACHE_USER_S = '7030b81da1324743'
 CACHE_PASSWORD_S = 'Zhihucache2'

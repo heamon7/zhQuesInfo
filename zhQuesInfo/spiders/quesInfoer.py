@@ -40,6 +40,7 @@ class QuesinfoerSpider(scrapy.Spider):
 
         leancloud.init(settings.APP_ID_S, master_key=settings.MASTER_KEY_S)
         client_s = bmemcached.Client(settings.CACHE_SERVER_S,settings.CACHE_USER_S,settings.CACHE_PASSWORD_S)
+
         dbPrime = 1
 
         for tableIndex in range(dbPrime):
@@ -83,10 +84,10 @@ class QuesinfoerSpider(scrapy.Spider):
 
 
                 for ques in quesRet:
-                    self.questionIdList.append(ques.get('questionId'))
-                    totalCount = client_s.incr('totalCount',1)
-                    client_s.set(str(totalCount),int(ques.get('questionId')))
-
+                    totalCountStr = str(client_s.incr('totalCount',1))
+                    questionId = int(ques.get('questionId'))
+                    self.questionIdList.append(questionId)
+                    client_s.set(totalCountStr,questionId)
 
 
          # Questions = Object.extend('Questions')
