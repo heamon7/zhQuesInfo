@@ -12,6 +12,7 @@ from scrapy import log
 from scrapy.exceptions import DropItem
 from zhQuesInfo import settings
 import bmemcached
+import re
 
 class QuesInfoPipeline(object):
     dbPrime = 97
@@ -20,23 +21,34 @@ class QuesInfoPipeline(object):
         leancloud.init(settings.APP_ID, master_key=settings.MASTER_KEY)
         self.client1 = bmemcached.Client(settings.CACHE_SERVER_1,settings.CACHE_USER_1,settings.CACHE_PASSWORD_1)
 
-        self.client = bmemcached.Client(settings.CACHE_SERVER,settings.CACHE_USER,settings.CACHE_PASSWORD)
+        self.client2 = bmemcached.Client(settings.CACHE_SERVER_2,settings.CACHE_USER_2,settings.CACHE_PASSWORD_2)
+        self.client3 = bmemcached.Client(settings.CACHE_SERVER_3,settings.CACHE_USER_3,settings.CACHE_PASSWORD_3)
         pass
     def process_item(self, item, spider):
         questionInfoList =[]
         questionId = str(item['questionId'])
-        if self.client.get(questionId):
+        if self.client3.get(questionId):
             pass
         else:
+            questionRef =''
             try:
-                tableIndex = (self.client1.get(questionId))[0]
+                tableIndex = (self.client1.get(questionId))[1]
+
             except:
-                tableIndex = 97
+                try:
+                    questionId = str(re.split('(\d*)\?rf=(\d*)',item['questionId'])[2])
+                    tableIndex = (self.client1.get(questionId))[1]
+                    questionRef = str(re.split('(\d*)\?rf=(\d*)',item['questionId'])[1])
+                except:
+                    tableIndex =98
+                    print questionId
             #tableIndex = int(item['dataUrlToken']) % self.dbPrime
             if tableIndex < 10:
                 tableIndexStr = '0' + str(tableIndex)
             else:
                 tableIndexStr = str(tableIndex)
+
+            # questionIndex = self.client1.get(str(questionId))[0]
             QuestionInfo = Object.extend('QuestionInfo'+tableIndexStr)
             questionInfo = QuestionInfo()
 
@@ -59,20 +71,23 @@ class QuesInfoPipeline(object):
             questionInfo.set('quesCommentCount',item['quesCommentCount'])
             questionInfo.set('visitsCount',item['visitsCount'])
 
-            questionInfoList.append(int(tableIndex))
-            if item['isTopQuestion'] == 'true':
-                questionInfoList.append(1)
-            else:
-                questionInfoList.append(0)
+            questionInfo.set('questionRef',questionRef)
+            # questionInfo.set('questionIndex',str(questionIndex))
 
-            questionInfoList.append(int(item['dataResourceId']))
-            questionInfoList.append(int(item['questionAnswerNum']))
-            questionInfoList.append(int(item['questionFollowerCount']))
-            questionInfoList.append(int(item['quesCommentCount']))
+            # questionInfoList.append(int(questionIndex))
+            # questionInfoList.append(int(tableIndex))
+            # if item['isTopQuestion'] == 'true':
+            #     questionInfoList.append(1)
+            # else:
+            #     questionInfoList.append(0)
 
-            self.client.set(str(item['questionId']),questionInfoList,0)
-            self.client.incr('totalCount',1)
-            self.client.incr("t"+tableIndexStr,1)
+            # questionInfoList.append(int(item['dataResourceId']))
+            # questionInfoList.append(int(item['questionAnswerNum']))
+            # questionInfoList.append(int(item['questionFollowerCount']))
+            # questionInfoList.append(int(item['quesCommentCount']))
+
+            self.client3.set(str(item['questionId']),int(item['dataResourceId']))
+            self.client3.incr('totalCount',1)
 
 
             try:

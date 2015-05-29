@@ -40,13 +40,14 @@ class QuesinfoerSpider(scrapy.Spider):
         print "Initianizing ....."
 
         leancloud.init(settings.APP_ID_S, master_key=settings.MASTER_KEY_S)
-        client_s = bmemcached.Client(settings.CACHE_SERVER_S,settings.CACHE_USER_S,settings.CACHE_PASSWORD_S)
+        # client1 = bmemcached.Client(settings.CACHE_SERVER_1,settings.CACHE_USER_1,settings.CACHE_PASSWORD_1)
+        client2 = bmemcached.Client(settings.CACHE_SERVER_2,settings.CACHE_USER_2,settings.CACHE_PASSWORD_2)
 
         dbPrime = 97
-        totalCount = int(client_s.get('totalCount'))
+        totalCount = int(client2.get('totalCount'))
         print "totalCount: %s\n" %str(totalCount)
         for questionIndex in range(0,totalCount+1):
-            self.questionIdSet.add(int(client_s.get(str(questionIndex))[0]))
+            self.questionIdSet.add(int(client2.get(str(questionIndex))))
 
         # for tableIndex in range(dbPrime):
         #     if tableIndex < 10:

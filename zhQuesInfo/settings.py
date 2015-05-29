@@ -16,23 +16,24 @@ NEWSPIDER_MODULE = 'zhQuesInfo.spiders'
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'zhQuesInfo (+http://www.yourdomain.com)'
 
-APP_ID_S = '8scc82ncveedyt6p8ilcz2auzoahzvpu2y800m5075f9flp9'
-MASTER_KEY_S = '06vseo6z44ummz0fgv0u6no7vnzqr4fbob0y2mxz6cv47p92'
+# APP_ID_S = '8scc82ncveedyt6p8ilcz2auzoahzvpu2y800m5075f9flp9'
+# MASTER_KEY_S = '06vseo6z44ummz0fgv0u6no7vnzqr4fbob0y2mxz6cv47p92'
 
-APP_ID = 'ttejmt8637gjvkkynoto8tjmlaeemgqwz5z1n1vl0k7xt03t'
-MASTER_KEY = '1gt3rdfqz0yomemzlke9wpyoqhi1v7z2sf1k7oy6s2tdo36y'
+APP_ID = 'ca9jbr333l391doywd1o3kt21wx6ovon1lii7oxqt9sswd6o'
+MASTER_KEY = 'tkkm3a5duzvkeg70r4ilr2qober7axwl8zjwc0d8cf6qqy3i'
 
-CACHE_SERVER_1 = 'd69c4508ccc94dc4.m.cnbjalinu16pub001.ocs.aliyuncs.com:11211'
-CACHE_USER_1 = 'd69c4508ccc94dc4'
-CACHE_PASSWORD_1 = 'Zhihucache1'
 
-CACHE_SERVER_S = '7030b81da1324743.m.cnbjalinu16pub001.ocs.aliyuncs.com:11211'
-CACHE_USER_S = '7030b81da1324743'
-CACHE_PASSWORD_S = 'Zhihucache2'
+CACHE_SERVER_1 = 'aa41ddf13b914084.m.cnbjalinu16pub001.ocs.aliyuncs.com:11211'
+CACHE_USER_1 = 'aa41ddf13b914084'
+CACHE_PASSWORD_1 = 'Zhihu7771'
 
-CACHE_SERVER = '92a2b309a9f145d2.m.cnbjalinu16pub001.ocs.aliyuncs.com:11211'
-CACHE_USER = '92a2b309a9f145d2'
-CACHE_PASSWORD = 'Zhihucache3'
+CACHE_SERVER_2 = 'b2954ece3d1647b8.m.cnbjalinu16pub001.ocs.aliyuncs.com:11211'
+CACHE_USER_2 = 'b2954ece3d1647b8'
+CACHE_PASSWORD_2 = 'Zhihu7772'
+
+CACHE_SERVER_3 = '73670ac267c941e6.m.cnbjalinu16pub001.ocs.aliyuncs.com:11211'
+CACHE_USER_3 = '73670ac267c941e6'
+CACHE_PASSWORD_3 = 'Zhihu7773'
 
 DOWNLOAD_TIMEOUT = 700
 
