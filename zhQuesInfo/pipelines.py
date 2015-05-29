@@ -13,31 +13,33 @@ from scrapy.exceptions import DropItem
 from zhQuesInfo import settings
 import bmemcached
 import re
-
+import redis
 class QuesInfoPipeline(object):
     dbPrime = 97
 
     def __init__(self):
         leancloud.init(settings.APP_ID, master_key=settings.MASTER_KEY)
-        self.client1 = bmemcached.Client(settings.CACHE_SERVER_1,settings.CACHE_USER_1,settings.CACHE_PASSWORD_1)
-
-        self.client2 = bmemcached.Client(settings.CACHE_SERVER_2,settings.CACHE_USER_2,settings.CACHE_PASSWORD_2)
-        self.client3 = bmemcached.Client(settings.CACHE_SERVER_3,settings.CACHE_USER_3,settings.CACHE_PASSWORD_3)
+        # self.client1 = bmemcached.Client(settings.CACHE_SERVER_1,settings.CACHE_USER_1,settings.CACHE_PASSWORD_1)
+        #
+        # self.client2 = bmemcached.Client(settings.CACHE_SERVER_2,settings.CACHE_USER_2,settings.CACHE_PASSWORD_2)
+        # self.client3 = bmemcached.Client(settings.CACHE_SERVER_3,settings.CACHE_USER_3,settings.CACHE_PASSWORD_3)
+        self.redis1 = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, password=settings.REDIS_USER+':'+settings.REDIS_PASSWORD,db=1)
+        self.redis3 = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, password=settings.REDIS_USER+':'+settings.REDIS_PASSWORD,db=3)
         pass
     def process_item(self, item, spider):
-        questionInfoList =[]
+
         questionId = str(item['questionId'])
-        if self.client3.get(questionId):
+        if self.redis3.get(questionId):
             pass
         else:
             questionRef =''
             try:
-                tableIndex = (self.client1.get(questionId))[1]
+                tableIndex = int(self.redis1.lindex(str(questionId),1))
 
             except:
                 try:
                     questionId = str(re.split('(\d*)\?rf=(\d*)',item['questionId'])[2])
-                    tableIndex = (self.client1.get(questionId))[1]
+                    tableIndex = int(self.redis1.lindex(str(questionId),1))
                     questionRef = str(re.split('(\d*)\?rf=(\d*)',item['questionId'])[1])
                 except:
                     tableIndex =98
@@ -48,7 +50,7 @@ class QuesInfoPipeline(object):
             else:
                 tableIndexStr = str(tableIndex)
 
-            # questionIndex = self.client1.get(str(questionId))[0]
+            questionIndex = self.redis1.lindex(str(questionId),0)
             QuestionInfo = Object.extend('QuestionInfo'+tableIndexStr)
             questionInfo = QuestionInfo()
 
@@ -72,22 +74,24 @@ class QuesInfoPipeline(object):
             questionInfo.set('visitsCount',item['visitsCount'])
 
             questionInfo.set('questionRef',questionRef)
-            # questionInfo.set('questionIndex',str(questionIndex))
 
-            # questionInfoList.append(int(questionIndex))
-            # questionInfoList.append(int(tableIndex))
-            # if item['isTopQuestion'] == 'true':
-            #     questionInfoList.append(1)
-            # else:
-            #     questionInfoList.append(0)
 
-            # questionInfoList.append(int(item['dataResourceId']))
-            # questionInfoList.append(int(item['questionAnswerNum']))
-            # questionInfoList.append(int(item['questionFollowerCount']))
-            # questionInfoList.append(int(item['quesCommentCount']))
+            questionInfo.set('questionIndex',str(questionIndex))
 
-            self.client3.set(str(item['questionId']),int(item['dataResourceId']))
-            self.client3.incr('totalCount',1)
+
+            if item['isTopQuestion'] == 'true':
+                isTopQuestion =1
+            else:
+                isTopQuestion =0
+
+            p3 = self.redis3.pipeline()
+            p3.incr('totalCount',1)
+
+            p3.rpush(str(questionId),int(questionIndex),int(tableIndexStr),int(item['dataResourceId']),int(isTopQuestion)
+                     ,int(item['questionFollowerCount']),int(item['questionAnswerNum']),int(item['quesCommentCount'])
+                     ,int(item['questionShowTimes']),int(item['topicRelatedFollowerCount']),int(item['visitsCount']))
+            p3.execute()
+
 
 
             try:

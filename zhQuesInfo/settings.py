@@ -22,18 +22,24 @@ NEWSPIDER_MODULE = 'zhQuesInfo.spiders'
 APP_ID = 'ca9jbr333l391doywd1o3kt21wx6ovon1lii7oxqt9sswd6o'
 MASTER_KEY = 'tkkm3a5duzvkeg70r4ilr2qober7axwl8zjwc0d8cf6qqy3i'
 
+#
+# CACHE_SERVER_1 = 'aa41ddf13b914084.m.cnbjalinu16pub001.ocs.aliyuncs.com:11211'
+# CACHE_USER_1 = 'aa41ddf13b914084'
+# CACHE_PASSWORD_1 = 'Zhihu7771'
+#
+# CACHE_SERVER_2 = 'b2954ece3d1647b8.m.cnbjalinu16pub001.ocs.aliyuncs.com:11211'
+# CACHE_USER_2 = 'b2954ece3d1647b8'
+# CACHE_PASSWORD_2 = 'Zhihu7772'
+#
+# CACHE_SERVER_3 = '73670ac267c941e6.m.cnbjalinu16pub001.ocs.aliyuncs.com:11211'
+# CACHE_USER_3 = '73670ac267c941e6'
+# CACHE_PASSWORD_3 = 'Zhihu7773'
 
-CACHE_SERVER_1 = 'aa41ddf13b914084.m.cnbjalinu16pub001.ocs.aliyuncs.com:11211'
-CACHE_USER_1 = 'aa41ddf13b914084'
-CACHE_PASSWORD_1 = 'Zhihu7771'
 
-CACHE_SERVER_2 = 'b2954ece3d1647b8.m.cnbjalinu16pub001.ocs.aliyuncs.com:11211'
-CACHE_USER_2 = 'b2954ece3d1647b8'
-CACHE_PASSWORD_2 = 'Zhihu7772'
-
-CACHE_SERVER_3 = '73670ac267c941e6.m.cnbjalinu16pub001.ocs.aliyuncs.com:11211'
-CACHE_USER_3 = '73670ac267c941e6'
-CACHE_PASSWORD_3 = 'Zhihu7773'
+REDIS_HOST = 'f57567e905c811e5.m.cnbja.kvstore.aliyuncs.com'
+REDIS_PORT = '6379'
+REDIS_USER = 'f57567e905c811e5'
+REDIS_PASSWORD = 'Zhihu777r'
 
 DOWNLOAD_TIMEOUT = 700
 

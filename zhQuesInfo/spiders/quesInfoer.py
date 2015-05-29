@@ -22,7 +22,7 @@ from zhQuesInfo import settings
 from zhQuesInfo.items import ZhquesinfoItem
 import bmemcached
 import re
-
+import redis
 
 class QuesinfoerSpider(scrapy.Spider):
     name = "quesInfoer"
@@ -31,7 +31,6 @@ class QuesinfoerSpider(scrapy.Spider):
     start_urls = (
         'http://www.zhihu.com/',
     )
-    questionIdSet = set()
     quesIndex =0
     handle_httpstatus_list = [401,429,500]
 
@@ -42,12 +41,12 @@ class QuesinfoerSpider(scrapy.Spider):
         # leancloud.init(settings.APP_ID_S, master_key=settings.MASTER_KEY_S)
         # client1 = bmemcached.Client(settings.CACHE_SERVER_1,settings.CACHE_USER_1,settings.CACHE_PASSWORD_1)
         client2 = bmemcached.Client(settings.CACHE_SERVER_2,settings.CACHE_USER_2,settings.CACHE_PASSWORD_2)
-
+        redis0 = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, password=settings.REDIS_USER+':'+settings.REDIS_PASSWORD,db=0)
         dbPrime = 97
-        totalCount = int(client2.get('totalCount'))
-        print "totalCount: %s\n" %str(totalCount)
-        for questionIndex in range(0,totalCount+1):
-            self.questionIdSet.add(int(client2.get(str(questionIndex))))
+        self.questionIdList = redis0.hvals('questionIndex')
+        # print "totalCount: %s\n" %str(totalCount)
+        # for questionIndex in range(0,totalCount+1):
+        #     self.questionIdSet.add(int(client2.get(str(questionIndex))))
 
         # for tableIndex in range(dbPrime):
         #     if tableIndex < 10:
@@ -156,7 +155,7 @@ class QuesinfoerSpider(scrapy.Spider):
         #print "after_login ing ....."
         #inspect_response(response,self)
         #self.urls = ['http://www.zhihu.com/question/28626263','http://www.zhihu.com/question/22921426','http://www.zhihu.com/question/20123112']
-        for questionId in self.questionIdSet:
+        for questionId in self.questionIdList:
             yield self.make_requests_from_url(self.baseUrl +str(questionId))
 
 
