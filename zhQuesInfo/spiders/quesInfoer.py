@@ -246,8 +246,15 @@ class QuesinfoerSpider(scrapy.Spider):
             # item[''] = response.xpath('').extract()
             # item[''] = response.xpath('').extract()
 
+            try:
+                item['questionLatestActiveTime'] = response.xpath('//*[@id="zh-single-question-page"]//span[@class="time"]/text()').extract()[0]
+            except:
+                try:
+                    item['questionLatestActiveTime'] = response.xpath('//*[@id="zh-single-question-page"]//span[@class="time"]/text()').extract()[0]
+                except:
+                    item['questionLatestActiveTime'] =''
+                    print "Error in questionLatestActiveTime : %s" %response.url
 
-            item['questionLatestActiveTime'] = response.xpath('//*[@id="zh-single-question-page"]//span[@class="time"]/text()').extract()[0]
            # item['questionLog'] = response.xpath('//*[@id="zh-single-question-page"]/div[2]/div[5]/div/div[1]/a').extract()[0]
             try:
                 item['questionShowTimes'] = int(response.xpath('//*[@id="zh-single-question-page"]/div[@class="zu-main-sidebar"]/div[last()-1]//div[@class="zg-gray-normal"][2]/strong[1]/text()').extract()[0])
