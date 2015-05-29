@@ -40,7 +40,7 @@ class QuesinfoerSpider(scrapy.Spider):
 
         # leancloud.init(settings.APP_ID_S, master_key=settings.MASTER_KEY_S)
         # client1 = bmemcached.Client(settings.CACHE_SERVER_1,settings.CACHE_USER_1,settings.CACHE_PASSWORD_1)
-        client2 = bmemcached.Client(settings.CACHE_SERVER_2,settings.CACHE_USER_2,settings.CACHE_PASSWORD_2)
+        # client2 = bmemcached.Client(settings.CACHE_SERVER_2,settings.CACHE_USER_2,settings.CACHE_PASSWORD_2)
         redis0 = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, password=settings.REDIS_USER+':'+settings.REDIS_PASSWORD,db=0)
         dbPrime = 97
         self.questionIdList = redis0.hvals('questionIndex')
