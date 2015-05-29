@@ -39,7 +39,7 @@ class QuesinfoerSpider(scrapy.Spider):
         self.stats = stats
         print "Initianizing ....."
 
-        leancloud.init(settings.APP_ID_S, master_key=settings.MASTER_KEY_S)
+        # leancloud.init(settings.APP_ID_S, master_key=settings.MASTER_KEY_S)
         # client1 = bmemcached.Client(settings.CACHE_SERVER_1,settings.CACHE_USER_1,settings.CACHE_PASSWORD_1)
         client2 = bmemcached.Client(settings.CACHE_SERVER_2,settings.CACHE_USER_2,settings.CACHE_PASSWORD_2)
 
