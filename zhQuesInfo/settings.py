@@ -19,8 +19,8 @@ NEWSPIDER_MODULE = 'zhQuesInfo.spiders'
 # APP_ID_S = '8scc82ncveedyt6p8ilcz2auzoahzvpu2y800m5075f9flp9'
 # MASTER_KEY_S = '06vseo6z44ummz0fgv0u6no7vnzqr4fbob0y2mxz6cv47p92'
 
-APP_ID = 'ca9jbr333l391doywd1o3kt21wx6ovon1lii7oxqt9sswd6o'
-MASTER_KEY = 'tkkm3a5duzvkeg70r4ilr2qober7axwl8zjwc0d8cf6qqy3i'
+APP_ID = 'i0ylv45uwms6kqekus558wyim0z8pkdhv97w5lwpuhfw0kgm'
+MASTER_KEY = 'ze0ajzcncmgygub2zsdt4len31e6wsqiwe0yzf9ttiwque2z'
 
 #
 # CACHE_SERVER_1 = 'aa41ddf13b914084.m.cnbjalinu16pub001.ocs.aliyuncs.com:11211'
