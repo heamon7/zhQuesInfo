@@ -24,12 +24,12 @@ class QuesInfoPipeline(object):
         # self.client2 = bmemcached.Client(settings.CACHE_SERVER_2,settings.CACHE_USER_2,settings.CACHE_PASSWORD_2)
         # self.client3 = bmemcached.Client(settings.CACHE_SERVER_3,settings.CACHE_USER_3,settings.CACHE_PASSWORD_3)
         self.redis1 = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, password=settings.REDIS_USER+':'+settings.REDIS_PASSWORD,db=1)
-        self.redis3 = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, password=settings.REDIS_USER+':'+settings.REDIS_PASSWORD,db=3)
+        self.redis2 = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, password=settings.REDIS_USER+':'+settings.REDIS_PASSWORD,db=2)
         pass
     def process_item(self, item, spider):
 
         questionId = str(item['questionId'])
-        if self.redis3.get(questionId):
+        if self.redis2.get(questionId):
             pass
         else:
             questionRef =''
@@ -51,6 +51,7 @@ class QuesInfoPipeline(object):
                 tableIndexStr = str(tableIndex)
 
             questionIndex = self.redis1.lindex(str(questionId),0)
+
             QuestionInfo = Object.extend('QuestionInfo'+tableIndexStr)
             questionInfo = QuestionInfo()
 
@@ -84,13 +85,13 @@ class QuesInfoPipeline(object):
             else:
                 isTopQuestion =0
 
-            p3 = self.redis3.pipeline()
-            p3.incr('totalCount',1)
+            p2 = self.redis2.pipeline()
+            p2.incr('totalCount',1)
 
-            p3.rpush(str(questionId),int(questionIndex),int(tableIndexStr),int(item['dataResourceId']),int(isTopQuestion)
+            p2.rpush(str(questionId),int(questionIndex),int(tableIndexStr),int(item['dataResourceId']),int(isTopQuestion)
                      ,int(item['questionFollowerCount']),int(item['questionAnswerNum']),int(item['quesCommentCount'])
                      ,int(item['questionShowTimes']),int(item['topicRelatedFollowerCount']),int(item['visitsCount']))
-            p3.execute()
+            p2.execute()
 
 
 
