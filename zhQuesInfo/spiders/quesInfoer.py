@@ -31,8 +31,10 @@ class QuesinfoerSpider(scrapy.Spider):
     start_urls = (
         'http://www.zhihu.com/',
     )
+    handle_httpstatus_list = [429,502,504]
     quesIndex =0
-    handle_httpstatus_list = [401,429,500]
+
+
 
     def __init__(self,stats):
         self.stats = stats
@@ -142,8 +144,8 @@ class QuesinfoerSpider(scrapy.Spider):
                                           #headers = self.headers,
                                           formdata={
                                               '_xsrf':xsrfValue,
-                                              'email':'heamon10@163.com',
-                                              'password':'heamon10@()',
+                                              'email':'heamon8@163.com',
+                                              'password':'heamon8@()',
                                               'rememberme': 'y'
                                           },
                                           dont_filter = True,
@@ -156,7 +158,7 @@ class QuesinfoerSpider(scrapy.Spider):
         #inspect_response(response,self)
         #self.urls = ['http://www.zhihu.com/question/28626263','http://www.zhihu.com/question/22921426','http://www.zhihu.com/question/20123112']
         for questionId in self.questionIdList:
-            yield self.make_requests_from_url(self.baseUrl +str(questionId))
+            yield self.make_requests_from_url(self.baseUrl +str(questionId)+'?nr=1')
 
 
     def parse(self,response):
@@ -283,21 +285,21 @@ class QuesinfoerSpider(scrapy.Spider):
 
 
 
-    def closed(self,reason):
-        #f = open('../../nohup.out')
-        #print f.read()
-        leancloud.init(settings.APP_ID, master_key=settings.MASTER_KEY)
-
-
-        CrawlerLog = Object.extend('CrawlerLog')
-        crawlerLog = CrawlerLog()
-
-        crawlerLog.set('crawlerName',self.name)
-        crawlerLog.set('closedReason',reason)
-        crawlerLog.set('crawlerStats',self.stats.get_stats())
-        try:
-            crawlerLog.save()
-        except:
-            pass
+    # def closed(self,reason):
+    #     #f = open('../../nohup.out')
+    #     #print f.read()
+    #     leancloud.init(settings.APP_ID, master_key=settings.MASTER_KEY)
+    #
+    #
+    #     CrawlerLog = Object.extend('CrawlerLog')
+    #     crawlerLog = CrawlerLog()
+    #
+    #     crawlerLog.set('crawlerName',self.name)
+    #     crawlerLog.set('closedReason',reason)
+    #     crawlerLog.set('crawlerStats',self.stats.get_stats())
+    #     try:
+    #         crawlerLog.save()
+    #     except:
+    #         pass
 
 
