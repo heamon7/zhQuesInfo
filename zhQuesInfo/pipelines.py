@@ -15,6 +15,7 @@ import bmemcached
 import re
 import redis
 import happybase
+import time
 
 class QuesInfoPipeline(object):
     # dbPrime = 97
@@ -62,38 +63,49 @@ class QuesInfoPipeline(object):
         # QuestionInfo = Object.extend('QuestionInfo'+tableIndexStr)
         # questionInfo = QuestionInfo()
 
-        try:
+        isTopQuestion = 1 if item['isTopQuestion'] == 'true' else 0
+
+        currentTimestamp = int(time.time())
+        recordTimestamp=self.redis2.lindex(str(questionId),0)
+
+        if not recordTimestamp or (int(currentTimestamp)-int(recordTimestamp) > 86400):        # the latest record time in hbase
+            recordTimestamp = currentTimestamp
             self.questionTable.put(str(questionId),{'detail:idZnonceContent':str(item['idZnonceContent']),
-                                           'detail:dataUrlToken':str(item['dataUrlToken']),
-                                           'detail:isTopQuestion':str(item['isTopQuestion']),
-                                           'detail:tagLabelHrefList': str(item['tagLabelHrefList']),
-                                           'detail:tagLabelDataTopicIdList': str(item['tagLabelDataTopicIdList']),
-                                           'detail:questionTitle': item['questionTitle'].encode('utf-8'),
-                                           'detail:dataResourceId': str(item['dataResourceId']),
-                                           'detail:quesAnswerNum': str(item['questionAnswerNum']),
-                                           'detail:quesFollowerCount': str(item['questionFollowerCount']),
-                                           'detail:quesLatestActiveTime': str(item['questionLatestActiveTime']),
-                                           'detail:quesShowTimes': str(item['questionShowTimes']),
-                                           'detail:topicRelatedFollowerCount': str(item['topicRelatedFollowerCount']),
-                                           'detail:quesDetail': item['questionDetail'].encode('utf-8'),
-                                           'detail:relatedQuesLinkList': str(item['relatedQuestionLinkList']),
-                                           'detail:quesCommentCount': str(item['quesCommentCount']),
-                                           'detail:visitsCount': str(item['visitsCount'])})
+                                               'detail:dataUrlToken':str(item['dataUrlToken']),
+                                               'detail:isTopQues':str(isTopQuestion),
+                                               'detail:tagLabelHrefList': str(item['tagLabelHrefList']),
+                                               'detail:tagLabelDataTopicIdList': str(item['tagLabelDataTopicIdList']),
+                                               'detail:questionTitle': item['questionTitle'].encode('utf-8'),
+                                               'detail:dataResourceId': str(item['dataResourceId']),
+                                               'detail:quesAnswerNum': str(item['questionAnswerNum']),
+                                               'detail:quesFollowerCount': str(item['questionFollowerCount']),
+                                               'detail:quesLatestActiveTime': item['questionLatestActiveTime'].encode('utf-8'),
+                                               'detail:quesShowTimes': str(item['questionShowTimes']),
+                                               'detail:topicRelatedFollowerCount': str(item['topicRelatedFollowerCount']),
+                                               'detail:quesDetail': item['questionDetail'].encode('utf-8'),
+                                               'detail:relatedQuesLinkList': str(item['relatedQuestionLinkList']),
+                                               'detail:quesCommentCount': str(item['quesCommentCount']),
+                                               'detail:visitsCount': str(item['visitsCount'])})
+        try:
 
 
-            isTopQuestion = 1 if item['isTopQuestion'] == 'true' else 0
+
             p2 = self.redis2.pipeline()
             p2.lpush(str(questionId)
                      # ,int(questionId)
                      ,int(item['dataResourceId'])
                      ,int(isTopQuestion)
                      ,int(item['questionFollowerCount'])
+
                      ,int(item['questionAnswerNum'])
                      ,int(item['quesCommentCount'])
                      ,int(item['questionShowTimes'])
+
                      ,int(item['topicRelatedFollowerCount'])
-                     ,int(item['visitsCount']))
-            p2.ltrim(str(questionId),0,7)
+                     ,int(item['visitsCount'])
+                     ,str(recordTimestamp))
+
+            p2.ltrim(str(questionId),0,8)
             p2.execute()
 
         except Exception,e:
