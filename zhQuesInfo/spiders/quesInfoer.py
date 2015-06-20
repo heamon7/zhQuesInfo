@@ -170,7 +170,7 @@ class QuesinfoerSpider(scrapy.Spider):
 
             item =  ZhquesinfoItem()
             #print "parsePage ing......"
-            item['questionId'] = re.split('http://www.zhihu.com/question/',response.url)[1]
+            item['questionId'] = re.split('http://www.zhihu.com/question/(\d*)',response.url)[1]
             item['idZnonceContent'] = response.xpath('//*[@id="znonce"]/@content').extract()[0]  #right
             item['dataUrlToken'] = response.xpath('//*[@id="zh-single-question-page"]/@data-urltoken').extract()[0] #right
             item['isTopQuestion'] = response.xpath('//*[@id="zh-single-question-page"]/meta[@itemprop="isTopQuestion"]/@content').extract()[0]    #right

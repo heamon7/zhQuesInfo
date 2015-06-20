@@ -95,6 +95,7 @@ class QuesInfoPipeline(object):
                      ,int(item['visitsCount']))
             p2.ltrim(str(questionId),0,7)
             p2.execute()
+
         except Exception,e:
             print e
             print questionId
