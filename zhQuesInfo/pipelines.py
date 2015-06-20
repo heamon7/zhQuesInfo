@@ -25,7 +25,7 @@ class QuesInfoPipeline(object):
         #
         # self.client2 = bmemcached.Client(settings.CACHE_SERVER_2,settings.CACHE_USER_2,settings.CACHE_PASSWORD_2)
         # self.client3 = bmemcached.Client(settings.CACHE_SERVER_3,settings.CACHE_USER_3,settings.CACHE_PASSWORD_3)
-        self.redis1 = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, password=settings.REDIS_USER+':'+settings.REDIS_PASSWORD,db=1)
+        # self.redis1 = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, password=settings.REDIS_USER+':'+settings.REDIS_PASSWORD,db=1)
         self.redis2 = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, password=settings.REDIS_USER+':'+settings.REDIS_PASSWORD,db=2)
         connection = happybase.Connection(settings.HBASE_HOST)
         self.questionTable = connection.table('question')
@@ -39,7 +39,7 @@ class QuesInfoPipeline(object):
         #     pass
         # else:
             # questionRef =''
-        questionIndex = self.redis1.lindex(str(questionId),0)
+        # questionIndex = self.redis1.lindex(str(questionId),0)
 
         # try:
         #     tableIndex = int(self.redis1.lindex(str(questionId),1))
@@ -82,22 +82,19 @@ class QuesInfoPipeline(object):
 
 
             isTopQuestion = 1 if item['isTopQuestion'] == 'true' else 0
-
-            if self.redis2.get(questionId):
-
-                p2 = self.redis2.pipeline()
-                p2.lpush(str(questionId)
-                         ,int(questionIndex)
-                         ,int(item['dataResourceId'])
-                         ,int(isTopQuestion)
-                         ,int(item['questionFollowerCount'])
-                         ,int(item['questionAnswerNum'])
-                         ,int(item['quesCommentCount'])
-                         ,int(item['questionShowTimes'])
-                         ,int(item['topicRelatedFollowerCount'])
-                         ,int(item['visitsCount']))
-                p2.ltrim(str(questionId),0,8)
-                p2.execute()
+            p2 = self.redis2.pipeline()
+            p2.lpush(str(questionId)
+                     # ,int(questionId)
+                     ,int(item['dataResourceId'])
+                     ,int(isTopQuestion)
+                     ,int(item['questionFollowerCount'])
+                     ,int(item['questionAnswerNum'])
+                     ,int(item['quesCommentCount'])
+                     ,int(item['questionShowTimes'])
+                     ,int(item['topicRelatedFollowerCount'])
+                     ,int(item['visitsCount']))
+            p2.ltrim(str(questionId),0,7)
+            p2.execute()
         except Exception,e:
             print e
             print questionId
