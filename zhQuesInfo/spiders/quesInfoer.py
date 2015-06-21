@@ -130,7 +130,7 @@ class QuesinfoerSpider(scrapy.Spider):
          #    for ques in quesRet:
          #        self.urls.append("http://www.zhihu.com"+ ques.get('questionLinkHref'))
     @classmethod
-    def from_crawler(cls, crawler):
+    def from_crawler(cls, crawler,**kwargs):
         return cls(crawler.stats)
 
     def start_requests(self):
