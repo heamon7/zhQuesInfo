@@ -39,18 +39,21 @@ class QuesinfoerSpider(scrapy.Spider):
 
     def __init__(self,spider_type='Master',spider_number=0,partition=1,**kwargs):
         # self.stats = stats
-        print "Initianizing ....."
+        #print "Initianizing ....."
+        self.redis0 = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, password=settings.REDIS_USER+':'+settings.REDIS_PASSWORD,db=0)
         self.spider_type = str(spider_type)
         self.spider_number = int(spider_number)
         self.partition = int(partition)
+        self.email= settings.EMAIL_LIST[self.spider_number]
+        self.password=settings.PASSWORD_LIST[self.spider_number]
+
         # self.spider_number = spider_number
         # self.spider_number = spider_number
         # leancloud.init(settings.APP_ID_S, master_key=settings.MASTER_KEY_S)
         # client1 = bmemcached.Client(settings.CACHE_SERVER_1,settings.CACHE_USER_1,settings.CACHE_PASSWORD_1)
         # client2 = bmemcached.Client(settings.CACHE_SERVER_2,settings.CACHE_USER_2,settings.CACHE_PASSWORD_2)
        # redis0 = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, password=settings.REDIS_USER+':'+settings.REDIS_PASSWORD,db=0)
-        self.email= settings.EMAIL_LIST[self.spider_number]
-        self.password=settings.PASSWORD_LIST[self.spider_number]
+
         # self.questionIdList = redis0.hvals('questionIndex')
         # questionIdListLength = len(self.questionIdList)
 
@@ -172,19 +175,22 @@ class QuesinfoerSpider(scrapy.Spider):
     #     #print "start_requests ing ......"
     #     yield Request("http://www.zhihu.com",callback = self.post_login)
     def start_requests(self):
-        self.questionIdList= range(0,123)
-        questionIdListLength =123
+        # self.questionIdList= range(0,123)
+        # questionIdListLength =123
+        self.questionIdList = self.redis0.hvals('questionIndex')
+        questionIdListLength = len(self.questionIdList)
+
         if self.spider_type=='Master':
             if self.partition!=1:
                 self.questionIdList = self.questionIdList[self.spider_number*questionIdListLength/self.partition:(self.spider_number+1)*questionIdListLength/self.partition]
-                for index in range(1,self.spider_number):
+                for index in range(1,self.partition):
                     payload ={
                         'project':settings.BOT_NAME
                         ,'spider':self.name
                         ,'spider_type':'Slave'
                         ,'spider_number':index
                         ,'partition':self.partition
-                        ,'settings':'JOBDIR=/tmp/scrapy/'+self.name+str(index)
+                        ,'setting':'JOBDIR=/tmp/scrapy/'+self.name+str(index)
                     }
                     response = requests.post(settings.SCRAPYD_HOST+'schedule.json',data=payload)
                     log.msg('Response: '+str(index)+' '+str(response),level=log.WARNING)
@@ -197,18 +203,18 @@ class QuesinfoerSpider(scrapy.Spider):
         else:
             log.msg('spider_type is:'+str(self.spider_type)+'with type of '+str(type(self.spider_type)))
         #print "start_requests ing ......"
-        yield Request("http://www.zhihu.com",callback = self.testScrapyd)
+        yield Request("http://www.zhihu.com",callback = self.post_login)
 
-    def testScrapyd(self,response):
-        item =  ZhquesinfoItem()
-        log.msg('spider_type: '+str(self.spider_type)
-                +'\nspider_number: '+str(self.spider_number)
-                +'\npartition: '+str(self.partition)
-                +'\nemail: '+str(self.email)
-                +'\npassword: '+str(self.password)
-                +'\nquestionIdList: '+str(self.questionIdList)
-                ,level=log.WARNING)
-        yield item
+    # def testScrapyd(self,response):
+    #     item =  ZhquesinfoItem()
+    #     log.msg('spider_type: '+str(self.spider_type)
+    #             +'\nspider_number: '+str(self.spider_number)
+    #             +'\npartition: '+str(self.partition)
+    #             +'\nemail: '+str(self.email)
+    #             +'\npassword: '+str(self.password)
+    #             +'\nquestionIdList: '+str(self.questionIdList)
+    #             ,level=log.WARNING)
+    #     yield item
 
 
         # print "spider_type: %s\nspider_number: %s\npartition: %email: %s\npassword: %s\nquestionIdList: %s" % (self.spider_type
@@ -227,8 +233,8 @@ class QuesinfoerSpider(scrapy.Spider):
                                           #headers = self.headers,
                                           formdata={
                                               '_xsrf':xsrfValue,
-                                              'email':'heamon8@163.com',
-                                              'password':'heamon8@()',
+                                              'email':self.email,
+                                              'password':self.password,
                                               'rememberme': 'y'
                                           },
                                           dont_filter = True,
