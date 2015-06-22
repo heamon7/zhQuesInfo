@@ -23,6 +23,8 @@ from zhQuesInfo.items import ZhquesinfoItem
 import bmemcached
 import re
 import redis
+import requests
+
 
 class QuesinfoerSpider(scrapy.Spider):
     name = "quesInfoer"
@@ -35,17 +37,72 @@ class QuesinfoerSpider(scrapy.Spider):
     quesIndex =0
 
 
-
-    def __init__(self,stats):
-        self.stats = stats
+    def __init__(self,spider_type='Master',spider_number=0,partition=1,**kwargs):
+        # self.stats = stats
         print "Initianizing ....."
-
+        self.spider_type = spider_type
+        self.spider_number = spider_number
+        self.partition = partition
+        spider_number = int(spider_number)
+        partition= int(partition)
+        # self.spider_number = spider_number
+        # self.spider_number = spider_number
         # leancloud.init(settings.APP_ID_S, master_key=settings.MASTER_KEY_S)
         # client1 = bmemcached.Client(settings.CACHE_SERVER_1,settings.CACHE_USER_1,settings.CACHE_PASSWORD_1)
         # client2 = bmemcached.Client(settings.CACHE_SERVER_2,settings.CACHE_USER_2,settings.CACHE_PASSWORD_2)
-        redis0 = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, password=settings.REDIS_USER+':'+settings.REDIS_PASSWORD,db=0)
-        dbPrime = 97
-        self.questionIdList = redis0.hvals('questionIndex')
+       # redis0 = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, password=settings.REDIS_USER+':'+settings.REDIS_PASSWORD,db=0)
+        self.email= settings.EMAIL_LIST[int(spider_number)]
+        self.password=settings.PASSWORD_LIST[int(spider_number)]
+        # self.questionIdList = redis0.hvals('questionIndex')
+        # questionIdListLength = len(self.questionIdList)
+        self.questionIdList= range(0,123)
+        questionIdListLength =123
+        if spider_type=='Master':
+            if int(partition)!=1:
+                self.questionIdList = self.questionIdList[int(spider_number)*questionIdListLength/partition:(int(spider_number)+1)*questionIdListLength/partition]
+                for index in range(1,int(spider_number)):
+                    payload ={
+                        'project':settings.BOT_NAME
+                        ,'spider':self.name
+                        ,'spider_type':'Slave'
+                        ,'spider_number':index
+                        ,'partition':int(partition)
+                        ,'settings':'JOBDIR=/tmp/scrapy/'+self.name+str(index)
+                    }
+                    response = requests.post(settings.SCRAPYD_HOST+'schedule.json',data=payload)
+
+        elif spider_type =='Slave':
+            if int(partition)-int(spider_number)!=1:
+                self.questionIdList = self.questionIdList[int(spider_number)*questionIdListLength/partition:(int(spider_number)+1)*questionIdListLength/partition]
+            else:
+                self.questionIdList = self.questionIdList[int(spider_number)*questionIdListLength/partition:]
+
+
+    # def __init__(self,spider_type='Master',spider_number=1,emailList=['heamon8@163.com'],passwordList=['heamon8@()'],**kwargs):
+    #     # self.stats = stats
+    #     print "Initianizing ....."
+    #     scrapyd = ScrapydAPI('http://localhost:6800')
+    #
+    #     # leancloud.init(settings.APP_ID_S, master_key=settings.MASTER_KEY_S)
+    #     # client1 = bmemcached.Client(settings.CACHE_SERVER_1,settings.CACHE_USER_1,settings.CACHE_PASSWORD_1)
+    #     # client2 = bmemcached.Client(settings.CACHE_SERVER_2,settings.CACHE_USER_2,settings.CACHE_PASSWORD_2)
+    #     redis0 = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, password=settings.REDIS_USER+':'+settings.REDIS_PASSWORD,db=0)
+    #     dbPrime = 97
+    #     self.email= emailList[0]
+    #     self.password=passwordList[0]
+    #     self.questionIdList = redis0.hvals('questionIndex')
+    #     questionIdListLength = len(self.questionIdList)
+    #     if spider_type=='Master':
+    #         if int(spider_number)!=1:
+    #             self.questionIdList = self.questionIdList[0:1*questionIdListLength/spider_number]
+    #             for index in range(1,int(spider_number)):
+    #                 scrapyd.schedule('zhQuesInfo', 'quesInfoer'
+    #                                  , settings='JOBDIR=/tmp/scrapy/zhihu/quesInfoer'+str(index)
+    #                                  ,spider_type='Slave'
+    #                                  ,spider_number=index
+    #                                  ,emailList=emailList[index]
+    #                                  ,passwordList=passwordList[index])
+
         # print "totalCount: %s\n" %str(totalCount)
         # for questionIndex in range(0,totalCount+1):
         #     self.questionIdSet.add(int(client2.get(str(questionIndex))))
@@ -129,13 +186,28 @@ class QuesinfoerSpider(scrapy.Spider):
          #    quesRet = query.find()
          #    for ques in quesRet:
          #        self.urls.append("http://www.zhihu.com"+ ques.get('questionLinkHref'))
-    @classmethod
-    def from_crawler(cls, crawler,**kwargs):
-        return cls(crawler.stats)
+    # @classmethod
+    # def from_crawler(cls, crawler,**kwargs):
+    #     return cls(crawler.stats)
 
+    # def start_requests(self):
+    #     #print "start_requests ing ......"
+    #     yield Request("http://www.zhihu.com",callback = self.post_login)
     def start_requests(self):
         #print "start_requests ing ......"
-        yield Request("http://www.zhihu.com",callback = self.post_login)
+        yield Request("http://www.zhihu.com",callback = self.testScrapyd)
+
+    def testScrapyd(self,response):
+        item =  ZhquesinfoItem()
+        print "spider_type: %s\nspider_number: %s\npartition: %email: %s\npassword: %s\nquestionIdList: %s" % (self.spider_type
+                                                                                                               ,self.spider_number
+                                                                                                               ,self.partition
+                                                                                                               ,self.email
+                                                                                                               ,self.password
+                                                                                                               ,str(self.questionIdList))
+
+        yield item
+
 
     def post_login(self,response):
         #print "post_login ing ......"

@@ -42,11 +42,26 @@ REDIS_USER = 'f57567e905c811e5'
 REDIS_PASSWORD = 'Zhihu777r'
 
 HBASE_HOST='localhost'
+SCRAPYD_HOST='localhost'
+
+
+EMAIL_LIST=[
+    'h1@1.com'
+    ,'h2@1.com'
+    ,'h3@1.com'
+    ,'h4@1.com']
+PASSWORD_LIST=[
+    'h1'
+    ,'h2'
+    ,'h3'
+    ,'h4'
+]
 
 DOWNLOAD_TIMEOUT = 700
 
-CONCURRENT_REQUESTS = 70
-CONCURRENT_REQUESTS_PER_DOMAIN = 70
+# CONCURRENT_REQUESTS = 70
+# CONCURRENT_REQUESTS_PER_DOMAIN = 70
+
 
 LOG_LEVEL = 'INFO'
 ITEM_PIPELINES = {
@@ -62,6 +77,9 @@ DEFAULT_REQUEST_HEADERS = {
            'Host': 'www.zhihu.com',
            'Referer': 'http://www.zhihu.com/',
 
+}
+EXTENSIONS = {
+    'scrapy.contrib.feedexport.FeedExporter': None,
 }
 
 USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36'
