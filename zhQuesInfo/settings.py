@@ -42,16 +42,29 @@ REDIS_USER = 'f57567e905c811e5'
 REDIS_PASSWORD = 'Zhihu777r'
 
 HBASE_HOST='localhost'
-SCRAPYD_HOST='localhost'
 
+
+SCRAPYD_HOST_LIST=[
+    '192.168.1.1'
+    ,'192.168.1.1'
+    ,'192.168.1.1'
+    ,'192.168.1.1'
+    ,'192.168.1.1'
+    ,'192.168.1.1'
+]
+SCRAPYD_PORT='6800'
 
 EMAIL_LIST=[
     'h1@1.com'
+    ,'h2@1.com'
+    ,'h2@1.com'
     ,'h2@1.com'
     ,'h3@1.com'
     ,'h4@1.com']
 PASSWORD_LIST=[
     'h1'
+    ,'h2'
+    ,'h2'
     ,'h2'
     ,'h3'
     ,'h4'

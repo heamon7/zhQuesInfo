@@ -181,7 +181,9 @@ class QuesinfoerSpider(scrapy.Spider):
         questionIdListLength = len(self.questionIdList)
 
         if self.spider_type=='Master':
+            log.msg('Master spider_type is '+self.spider_type,level=log.WARNING)
             if self.partition!=1:
+                log.msg('Master non 1 partition is '+str(self.partition),level=log.WARNING)
                 self.questionIdList = self.questionIdList[self.spider_number*questionIdListLength/self.partition:(self.spider_number+1)*questionIdListLength/self.partition]
                 for index in range(1,self.partition):
                     payload ={
@@ -192,11 +194,14 @@ class QuesinfoerSpider(scrapy.Spider):
                         ,'partition':self.partition
                         ,'setting':'JOBDIR=/tmp/scrapy/'+self.name+str(index)
                     }
-                    response = requests.post(settings.SCRAPYD_HOST+'schedule.json',data=payload)
+                    log.msg('Begin to request'+str(index),level=log.WARNING)
+                    response = requests.post('http://'+settings.SCRAPYD_HOST_LIST[self.spider_number]+'/'+settings.SCRAPYD_PORT+'/schedule.json',data=payload)
                     log.msg('Response: '+str(index)+' '+str(response),level=log.WARNING)
 
         elif self.spider_type =='Slave':
-            if self.partition-self.spider_number!=1:
+            log.msg('Slave spider_type is '+self.spider_type,level=log.WARNING)
+            log.msg('Slave number is '+str(self.partition) + ' partition is '+str(self.partition),level=log.WARNING)
+            if (self.partition-self.spider_number)!=1:
                 self.questionIdList = self.questionIdList[self.spider_number*questionIdListLength/self.partition:(self.spider_number+1)*questionIdListLength/self.partition]
             else:
                 self.questionIdList = self.questionIdList[self.spider_number*questionIdListLength/self.partition:]
