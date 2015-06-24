@@ -195,12 +195,12 @@ class QuesinfoerSpider(scrapy.Spider):
                         ,'setting':'JOBDIR=/tmp/scrapy/'+self.name+str(index)
                     }
                     log.msg('Begin to request'+str(index),level=log.WARNING)
-                    response = requests.post('http://'+settings.SCRAPYD_HOST_LIST[self.spider_number]+'/'+settings.SCRAPYD_PORT+'/schedule.json',data=payload)
+                    response = requests.post('http://'+settings.SCRAPYD_HOST_LIST[self.spider_number]+':'+settings.SCRAPYD_PORT+'/schedule.json',data=payload)
                     log.msg('Response: '+str(index)+' '+str(response),level=log.WARNING)
 
         elif self.spider_type =='Slave':
             log.msg('Slave spider_type is '+self.spider_type,level=log.WARNING)
-            log.msg('Slave number is '+str(self.partition) + ' partition is '+str(self.partition),level=log.WARNING)
+            log.msg('Slave number is '+str(self.spider_number) + ' partition is '+str(self.partition),level=log.WARNING)
             if (self.partition-self.spider_number)!=1:
                 self.questionIdList = self.questionIdList[self.spider_number*questionIdListLength/self.partition:(self.spider_number+1)*questionIdListLength/self.partition]
             else:
