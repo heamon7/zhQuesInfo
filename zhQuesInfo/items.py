@@ -19,7 +19,7 @@ class ZhquesinfoItem(scrapy.Item):
     visitsCount = scrapy.Field()    #   //*[@id="zh-single-question-page"]/meta[2]
 
 
-    tagLabelHrefList = scrapy.Field()  # //*[@id="zh-single-question-page"]/div[1]/div/div[2]/div
+    tagLabelIdList = scrapy.Field()  # //*[@id="zh-single-question-page"]/div[1]/div/div[2]/div
     tagLabelDataTopicIdList = scrapy.Field()
     questionTitle = scrapy.Field()  #   //*[@id="zh-question-title"]/h2/text()
 
@@ -33,7 +33,7 @@ class ZhquesinfoItem(scrapy.Item):
     quesCommentCount = scrapy.Field()   #   //*[@id="zh-question-meta-wrap"]/div[1]/a[2]/text()
     quesCommentLink = scrapy.Field()    # need to analyze httpreq
 
-    questionAnswerNum = scrapy.Field()  #   //*[@id="zh-question-answer-num"]
+    questionAnswerCount = scrapy.Field()  #   //*[@id="zh-question-answer-num"]
 
 
 

@@ -13,68 +13,7 @@ BOT_NAME = 'zhQuesInfo'
 SPIDER_MODULES = ['zhQuesInfo.spiders']
 NEWSPIDER_MODULE = 'zhQuesInfo.spiders'
 
-# Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = 'zhQuesInfo (+http://www.yourdomain.com)'
-
-# APP_ID_S = '8scc82ncveedyt6p8ilcz2auzoahzvpu2y800m5075f9flp9'
-# MASTER_KEY_S = '06vseo6z44ummz0fgv0u6no7vnzqr4fbob0y2mxz6cv47p92'
-APP_NAME = 'zhQuesInfo4'
-APP_ID = 'jtr6r6qumh71o20btpgpldxfhyxhsireb4vmne7tzh87ln3a'
-MASTER_KEY = 'zq38zjgdz98riq6fq46hqb7xdq0d9j425oxq5rd0ztt0bby3'
-
-#
-# CACHE_SERVER_1 = 'aa41ddf13b914084.m.cnbjalinu16pub001.ocs.aliyuncs.com:11211'
-# CACHE_USER_1 = 'aa41ddf13b914084'
-# CACHE_PASSWORD_1 = 'Zhihu7771'
-#
-# CACHE_SERVER_2 = 'b2954ece3d1647b8.m.cnbjalinu16pub001.ocs.aliyuncs.com:11211'
-# CACHE_USER_2 = 'b2954ece3d1647b8'
-# CACHE_PASSWORD_2 = 'Zhihu7772'
-#
-# CACHE_SERVER_3 = '73670ac267c941e6.m.cnbjalinu16pub001.ocs.aliyuncs.com:11211'
-# CACHE_USER_3 = '73670ac267c941e6'
-# CACHE_PASSWORD_3 = 'Zhihu7773'
-
-
-REDIS_HOST = 'f57567e905c811e5.m.cnbja.kvstore.aliyuncs.com'
-REDIS_PORT = '6379'
-REDIS_USER = 'f57567e905c811e5'
-REDIS_PASSWORD = 'Zhihu777r'
-
-HBASE_HOST='localhost'
-
-
-SCRAPYD_HOST_LIST=[
-    '192.168.1.1'
-    ,'192.168.1.1'
-    ,'192.168.1.1'
-    ,'192.168.1.1'
-    ,'192.168.1.1'
-    ,'192.168.1.1'
-]
-SCRAPYD_PORT='6800'
-
-EMAIL_LIST=[
-    'h1@1.com'
-    ,'h2@1.com'
-    ,'h2@1.com'
-    ,'h2@1.com'
-    ,'h3@1.com'
-    ,'h4@1.com']
-PASSWORD_LIST=[
-    'h1'
-    ,'h2'
-    ,'h2'
-    ,'h2'
-    ,'h3'
-    ,'h4'
-]
-
 DOWNLOAD_TIMEOUT = 700
-
-# CONCURRENT_REQUESTS = 70
-# CONCURRENT_REQUESTS_PER_DOMAIN = 70
-
 
 LOG_LEVEL = 'INFO'
 ITEM_PIPELINES = {
@@ -92,7 +31,7 @@ DEFAULT_REQUEST_HEADERS = {
 
 }
 EXTENSIONS = {
-    'scrapy.contrib.feedexport.FeedExporter': None,
+    'scrapy.extensions.feedexport.FeedExporter': None,
 }
 
 USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36'
@@ -102,6 +41,12 @@ SPIDER_MIDDDLEWARES = {
 }
 
 DUPEFILTER_CLASS = 'zhQuesInfo.custom_filters.SeenURLFilter'
+
+
+
+
+
+
 
 
 #AJAXCRAWL_ENABLED = True

@@ -4,29 +4,22 @@
 #
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
-# import leancloud
-# from leancloud import Object
-# from leancloud import LeanCloudError
-# from leancloud import Query
-from scrapy import log
+
+
 from scrapy.exceptions import DropItem
 from zhQuesInfo import settings
-import bmemcached
+
 import re
 import redis
 import happybase
 import time
+import logging
 
 class QuesInfoPipeline(object):
-    # dbPrime = 97
+
 
     def __init__(self):
-        # leancloud.init(settings.APP_ID, master_key=settings.MASTER_KEY)
-        # self.client1 = bmemcached.Client(settings.CACHE_SERVER_1,settings.CACHE_USER_1,settings.CACHE_PASSWORD_1)
-        #
-        # self.client2 = bmemcached.Client(settings.CACHE_SERVER_2,settings.CACHE_USER_2,settings.CACHE_PASSWORD_2)
-        # self.client3 = bmemcached.Client(settings.CACHE_SERVER_3,settings.CACHE_USER_3,settings.CACHE_PASSWORD_3)
-        # self.redis1 = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, password=settings.REDIS_USER+':'+settings.REDIS_PASSWORD,db=1)
+
         self.redis2 = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, password=settings.REDIS_USER+':'+settings.REDIS_PASSWORD,db=2)
         connection = happybase.Connection(settings.HBASE_HOST)
         self.questionTable = connection.table('question')
@@ -34,50 +27,29 @@ class QuesInfoPipeline(object):
     def process_item(self, item, spider):
 
         questionId = str(item['questionId'])
-        # if self.redis2.get(questionId):
-        #     pass
-        # if 0:
-        #     pass
-        # else:
-            # questionRef =''
-        # questionIndex = self.redis1.lindex(str(questionId),0)
-
-        # try:
-        #     tableIndex = int(self.redis1.lindex(str(questionId),1))
-        #
-        # except:
-        #     try:
-        #         questionId = str(re.split('(\d*)\?rf=(\d*)',item['questionId'])[2])
-        #         tableIndex = int(self.redis1.lindex(str(questionId),1))
-        #         questionRef = str(re.split('(\d*)\?rf=(\d*)',item['questionId'])[1])
-        #     except:
-        #         tableIndex =98
-        #         print questionId
-        # #tableIndex = int(item['dataUrlToken']) % self.dbPrime
-        # if tableIndex < 10:
-        #     tableIndexStr = '0' + str(tableIndex)
-        # else:
-        #     tableIndexStr = str(tableIndex)
-        #
-        #
-        # QuestionInfo = Object.extend('QuestionInfo'+tableIndexStr)
-        # questionInfo = QuestionInfo()
 
         isTopQuestion = 1 if item['isTopQuestion'] == 'true' else 0
 
         currentTimestamp = int(time.time())
-        recordTimestamp=self.redis2.lindex(str(questionId),0)
 
-        if not recordTimestamp or (int(currentTimestamp)-int(recordTimestamp) > 86400):        # the latest record time in hbase
+        result = self.redis2.lindex(str(questionId),0)
+        if result:
+            recordTimestamp =result
+        else:
+            recordTimestamp=''
+
+        if not recordTimestamp or (int(currentTimestamp)-int(recordTimestamp) > int(settings.UPDATE_PERIOD)):        # the latest record time in hbase
             recordTimestamp = currentTimestamp
-            self.questionTable.put(str(questionId),{'detail:idZnonceContent':str(item['idZnonceContent']),
+
+            try:
+                self.questionTable.put(str(questionId),{'detail:idZnonceContent':str(item['idZnonceContent']),
                                                'detail:dataUrlToken':str(item['dataUrlToken']),
                                                'detail:isTopQues':str(isTopQuestion),
-                                               'detail:tagLabelHrefList': str(item['tagLabelHrefList']),
+                                               'detail:tagLabelIdList': str(item['tagLabelIdList']),
                                                'detail:tagLabelDataTopicIdList': str(item['tagLabelDataTopicIdList']),
                                                'detail:questionTitle': item['questionTitle'].encode('utf-8'),
                                                'detail:dataResourceId': str(item['dataResourceId']),
-                                               'detail:quesAnswerNum': str(item['questionAnswerNum']),
+                                               'detail:quesAnswerCount': str(item['questionAnswerCount']),
                                                'detail:quesFollowerCount': str(item['questionFollowerCount']),
                                                'detail:quesLatestActiveTime': item['questionLatestActiveTime'].encode('utf-8'),
                                                'detail:quesShowTimes': str(item['questionShowTimes']),
@@ -86,31 +58,47 @@ class QuesInfoPipeline(object):
                                                'detail:relatedQuesLinkList': str(item['relatedQuestionLinkList']),
                                                'detail:quesCommentCount': str(item['quesCommentCount']),
                                                'detail:visitsCount': str(item['visitsCount'])})
-        try:
 
-
+            except Exception,e:
+                logging.warning('Error with put questionId into hbase: '+str(e)+' try again......')
+                try:
+                    self.questionTable.put(str(questionId),{'detail:idZnonceContent':str(item['idZnonceContent']),
+                                               'detail:dataUrlToken':str(item['dataUrlToken']),
+                                               'detail:isTopQues':str(isTopQuestion),
+                                               'detail:tagLabelIdList': str(item['tagLabelIdList']),
+                                               'detail:tagLabelDataTopicIdList': str(item['tagLabelDataTopicIdList']),
+                                               'detail:questionTitle': item['questionTitle'].encode('utf-8'),
+                                               'detail:dataResourceId': str(item['dataResourceId']),
+                                               'detail:quesAnswerCount': str(item['questionAnswerCount']),
+                                               'detail:quesFollowerCount': str(item['questionFollowerCount']),
+                                               'detail:quesLatestActiveTime': item['questionLatestActiveTime'].encode('utf-8'),
+                                               'detail:quesShowTimes': str(item['questionShowTimes']),
+                                               'detail:topicRelatedFollowerCount': str(item['topicRelatedFollowerCount']),
+                                               'detail:quesDetail': item['questionDetail'].encode('utf-8'),
+                                               'detail:relatedQuesLinkList': str(item['relatedQuestionLinkList']),
+                                               'detail:quesCommentCount': str(item['quesCommentCount']),
+                                               'detail:visitsCount': str(item['visitsCount'])})
+                    logging.warning('tried again and successfully put data into hbase ......')
+                except Exception,e:
+                    logging.warning('Error with put questionId into hbase: '+str(e)+'tried again and failed')
 
             p2 = self.redis2.pipeline()
             p2.lpush(str(questionId)
                      # ,int(questionId)
-                     ,int(item['dataResourceId'])
-                     ,int(isTopQuestion)
-                     ,int(item['questionFollowerCount'])
+                     ,str(item['dataResourceId'])
+                     ,str(isTopQuestion)
+                     ,str(item['questionFollowerCount'])
 
-                     ,int(item['questionAnswerNum'])
-                     ,int(item['quesCommentCount'])
-                     ,int(item['questionShowTimes'])
+                     ,str(item['questionAnswerCount'])
+                     ,str(item['quesCommentCount'])
+                     ,str(item['questionShowTimes'])
 
-                     ,int(item['topicRelatedFollowerCount'])
-                     ,int(item['visitsCount'])
+                     ,str(item['topicRelatedFollowerCount'])
+                     ,str(item['visitsCount'])
                      ,str(recordTimestamp))
 
             p2.ltrim(str(questionId),0,8)
             p2.execute()
-
-        except Exception,e:
-            print e
-            print questionId
     DropItem()
 
 
@@ -156,3 +144,33 @@ class QuesInfoPipeline(object):
 
 
 
+
+
+        # if self.redis2.get(questionId):
+        #     pass
+        # if 0:
+        #     pass
+        # else:
+            # questionRef =''
+        # questionIndex = self.redis1.lindex(str(questionId),0)
+
+        # try:
+        #     tableIndex = int(self.redis1.lindex(str(questionId),1))
+        #
+        # except:
+        #     try:
+        #         questionId = str(re.split('(\d*)\?rf=(\d*)',item['questionId'])[2])
+        #         tableIndex = int(self.redis1.lindex(str(questionId),1))
+        #         questionRef = str(re.split('(\d*)\?rf=(\d*)',item['questionId'])[1])
+        #     except:
+        #         tableIndex =98
+        #         print questionId
+        # #tableIndex = int(item['dataUrlToken']) % self.dbPrime
+        # if tableIndex < 10:
+        #     tableIndexStr = '0' + str(tableIndex)
+        # else:
+        #     tableIndexStr = str(tableIndex)
+        #
+        #
+        # QuestionInfo = Object.extend('QuestionInfo'+tableIndexStr)
+        # questionInfo = QuestionInfo()
