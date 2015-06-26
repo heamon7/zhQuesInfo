@@ -20,7 +20,7 @@ class QuesInfoPipeline(object):
 
     def __init__(self):
 
-        self.redis2 = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, password=settings.REDIS_USER+':'+settings.REDIS_PASSWORD,db=2)
+        self.redis2 = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, password=settings.REDIS_PASSWORD,db=2)
         connection = happybase.Connection(settings.HBASE_HOST)
         self.questionTable = connection.table('question')
         pass
