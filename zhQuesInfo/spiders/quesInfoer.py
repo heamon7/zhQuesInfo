@@ -93,7 +93,7 @@ class QuesinfoerSpider(scrapy.Spider):
 
     def after_login(self,response):
         try:
-            loginUserLink = response.xpath('//div[@id="zh-top-inner"]/div[@class="top-nav-profile"]/a/@href').extract()
+            loginUserLink = response.xpath('//div[@id="zh-top-inner"]/div[@class="top-nav-profile"]/a/@href').extract()[0]
             logging.warning('Successfully login with '+str(loginUserLink)+str(self.email)+'  '+str(self.password))
         except:
             logging.error('Login failed! %s   %s',self.email,self.password)
