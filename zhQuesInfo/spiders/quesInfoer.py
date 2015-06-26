@@ -96,7 +96,7 @@ class QuesinfoerSpider(scrapy.Spider):
             loginUserLink = response.xpath('//div[@id="zh-top-inner"]/div[@class="top-nav-profile"]/a/@href').extract()
             logging.warning('Successfully login with '+str(loginUserLink))
         except:
-            logging.error('Login failed!')
+            logging.error('Login failed! %s   %s',self.email,self.password)
         #inspect_response(response,self)
         #self.urls = ['http://www.zhihu.com/question/28626263','http://www.zhihu.com/question/22921426','http://www.zhihu.com/question/20123112']
         for questionId in self.questionIdList:
